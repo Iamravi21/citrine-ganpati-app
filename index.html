@@ -597,8 +597,8 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                const amount = contribution.residentType === 'Owner' ? `₹${contribution.amount}` : 'Tenant';
-                if (contribution.residentType === 'Owner' && contribution.amount) {
+                const amount = contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'Tenant';
+                if (contribution.amount && contribution.amount !== '0') {
                     total += parseInt(contribution.amount || 0);
                     ownerContributions.push(parseInt(contribution.amount || 0));
                 }
