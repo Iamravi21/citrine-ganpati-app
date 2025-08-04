@@ -292,6 +292,12 @@
                     <div class="stat-label">Pending Flats</div>
                 </div>
             </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn btn-success" onclick="exportToCSV()">
+                    📊 Export to CSV
+                </button>
+            </div>
         </div>
 
         <!-- Manage Records Tab -->
@@ -602,20 +608,36 @@
         }
 
         function showMessage(message, isError, section) {
-            const successId = section === 'add' ? 'addSuccessMessage' : 'successMessage';
-            const errorId = section === 'add' ? 'addErrorMessage' : 'errorMessage';
+            const successId = section === 'add' ? 'addSuccessMessage' : (section === 'dashboard' ? 'dashboardSuccessMessage' : 'successMessage');
+            const errorId = section === 'add' ? 'addErrorMessage' : (section === 'dashboard' ? 'dashboardErrorMessage' : 'errorMessage');
+            
+            // Create dashboard messages if they don't exist
+            if (section === 'dashboard') {
+                if (!document.getElementById('dashboardSuccessMessage')) {
+                    const successDiv = document.createElement('div');
+                    successDiv.id = 'dashboardSuccessMessage';
+                    successDiv.className = 'success-message';
+                    document.getElementById('dashboard').appendChild(successDiv);
+                }
+                if (!document.getElementById('dashboardErrorMessage')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.id = 'dashboardErrorMessage';
+                    errorDiv.className = 'error-message';
+                    document.getElementById('dashboard').appendChild(errorDiv);
+                }
+            }
             
             if (isError) {
                 document.getElementById(errorId).textContent = message;
                 document.getElementById(errorId).style.display = 'block';
-                document.getElementById(successId).style.display = 'none';
+                if (document.getElementById(successId)) document.getElementById(successId).style.display = 'none';
                 setTimeout(() => {
                     document.getElementById(errorId).style.display = 'none';
                 }, 5000);
             } else {
                 document.getElementById(successId).textContent = message;
                 document.getElementById(successId).style.display = 'block';
-                document.getElementById(errorId).style.display = 'none';
+                if (document.getElementById(errorId)) document.getElementById(errorId).style.display = 'none';
                 setTimeout(() => {
                     document.getElementById(successId).style.display = 'none';
                 }, 3000);
@@ -628,6 +650,39 @@
             updateDashboard();
             updateTable();
         });
+
+        // Export to CSV function
+        function exportToCSV() {
+            const headers = ['Name', 'Flat Number', 'Resident Type', 'Amount', 'Date Added'];
+            const csvContent = [headers.join(',')];
+            
+            contributions.forEach(contribution => {
+                const row = [
+                    `"${contribution.name}"`,
+                    `"${contribution.flatNumber}"`,
+                    `"${contribution.residentType}"`,
+                    `"${contribution.amount}"`,
+                    `"${new Date().toLocaleDateString()}"`
+                ];
+                csvContent.push(row.join(','));
+            });
+            
+            const csvString = csvContent.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `Ganpati_Contributions_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            showMessage('CSV file exported successfully!', false, 'dashboard');
+        }
 
         // Close modal when clicking outside
         window.onclick = function(event) {
