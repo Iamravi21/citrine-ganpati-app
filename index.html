@@ -589,13 +589,22 @@
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
                     if (values.length >= 6 && values[2] && values[2].trim()) {
-                        contributions.push({
+                        const newEntry = {
                             name: values[2].replace(/"/g, '').replace(/\r/g, ''),
                             flatNumber: values[3].replace(/"/g, '').replace(/\r/g, ''),
                             residentType: values[4].replace(/"/g, '').replace(/\r/g, ''),
                             amount: values[5].replace(/"/g, '').replace(/\r/g, ''),
                             isNew: true
-                        });
+                        };
+                        
+                        // Check if this entry already exists in existing contributions
+                        const isDuplicate = existingContributions.some(existing => 
+                            existing.flatNumber === newEntry.flatNumber
+                        );
+                        
+                        if (!isDuplicate) {
+                            contributions.push(newEntry);
+                        }
                     }
                 }
                 
@@ -647,7 +656,7 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                const amount = contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'Tenant';
+                const amount = contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : (contribution.residentType === 'Tenant' ? 'Tenant' : '₹0');
                 if (contribution.amount && contribution.amount !== '0') {
                     total += parseInt(contribution.amount || 0);
                     ownerContributions.push(parseInt(contribution.amount || 0));
