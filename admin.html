@@ -444,13 +444,13 @@
                 let currentId = existingContributions.length + 1;
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
-                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                    if (values.length >= 6 && values[2] && values[2].trim()) {
                         loadedContributions.push({
                             id: currentId++,
-                            name: values[1].replace(/"/g, '').trim(),
-                            flatNumber: values[2].replace(/"/g, '').trim(),
-                            residentType: values[3].replace(/"/g, '').trim(),
-                            amount: values[4].replace(/"/g, '').trim(),
+                            name: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            flatNumber: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            residentType: values[4].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            amount: values[5].replace(/"/g, '').replace(/\r/g, '').trim(),
                             isNew: true
                         });
                     }
