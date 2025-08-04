@@ -428,14 +428,8 @@
                 });
                 const csvText = await response.text();
                 
-                console.log('Admin: Loaded CSV data:', csvText.substring(0, 200) + '...');
-                console.log('Admin: Full CSV length:', csvText.length);
-                
                 // Parse CSV
                 const lines = csvText.trim().split('\n');
-                console.log('Admin: CSV lines count:', lines.length);
-                console.log('Admin: First few lines:', lines.slice(0, 3));
-                
                 const loadedContributions = [];
                 
                 // Add existing contributions first
@@ -448,26 +442,20 @@
                 
                 // Add new contributions from sheet (skip header row)
                 let currentId = existingContributions.length + 1;
-                let newEntriesCount = 0;
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
-                    console.log(`Admin: Processing line ${i}:`, values);
                     if (values.length >= 4 && values[1] && values[1].trim()) {
-                        const newEntry = {
+                        loadedContributions.push({
                             id: currentId++,
                             name: values[1].replace(/"/g, '').trim(),
                             flatNumber: values[2].replace(/"/g, '').trim(),
                             residentType: values[3].replace(/"/g, '').trim(),
                             amount: values[4].replace(/"/g, '').trim(),
                             isNew: true
-                        };
-                        loadedContributions.push(newEntry);
-                        newEntriesCount++;
-                        console.log('Admin: Added new entry:', newEntry);
+                        });
                     }
                 }
                 
-                console.log(`Admin: Total contributions: ${loadedContributions.length}, New entries: ${newEntriesCount}`);
                 contributions = loadedContributions;
                 nextId = currentId;
                 return true;
@@ -743,7 +731,6 @@
             
             // Auto-refresh every 15 seconds to match public app
             setInterval(async () => {
-                console.log('Admin: Auto-refreshing data...');
                 await loadContributions();
                 updateDashboard();
                 if (document.querySelector('.tab-content.active').id === 'manage') {
