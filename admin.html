@@ -262,8 +262,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="admin-title">🔧 Admin Panel - Direct Edit</div>
+            <div class="admin-title">🔧 Admin Panel - Live Data</div>
             <div>Citrine Housing Society - Ganpati Festival</div>
+            <div style="color: #4CAF50; font-weight: bold; margin-top: 10px;">🔴 LIVE - Connected to Google Sheets</div>
         </div>
 
         <div class="tabs">
@@ -293,9 +294,18 @@
                 </div>
             </div>
             
+            <div style="background: rgba(76,175,80,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #4CAF50;">
+                <h4 style="color: #4CAF50; margin-bottom: 10px;">📊 Live Data Status</h4>
+                <p style="color: #8B4513;">This admin panel shows the same data as the user app. New submissions appear automatically every 30 seconds.</p>
+                </div>
+            </div>
+            
             <div style="text-align: center; margin-top: 30px;">
                 <button class="btn btn-success" onclick="exportToCSV()">
                     📊 Export to CSV
+                </button>
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 Refresh Data
                 </button>
             </div>
         </div>
@@ -371,33 +381,86 @@
     </div>
 
     <script>
-        // Data storage
-        let contributions = [
-            { id: 1, name: "Hemant Chaudhari", flatNumber: "B303", residentType: "Owner", amount: "1111" },
-            { id: 2, name: "Nitin Martand", flatNumber: "B608", residentType: "Owner", amount: "1100" },
-            { id: 3, name: "Swapnali Nikam", flatNumber: "A703", residentType: "Owner", amount: "1101" },
-            { id: 4, name: "Mintu Singh", flatNumber: "B501", residentType: "Owner", amount: "1100" },
-            { id: 5, name: "Sanjay Mishra", flatNumber: "B302", residentType: "Owner", amount: "1100" },
-            { id: 6, name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "Owner", amount: "1101" },
-            { id: 7, name: "Silky Tripathi", flatNumber: "A506", residentType: "Owner", amount: "1101" },
-            { id: 8, name: "Ranjeet K", flatNumber: "B102", residentType: "Owner", amount: "1111" },
-            { id: 9, name: "Vijay Kadam", flatNumber: "B702", residentType: "Owner", amount: "1100" },
-            { id: 10, name: "Satish A. Tanpure", flatNumber: "A106", residentType: "Owner", amount: "1100" },
-            { id: 11, name: "Ravi Gupta", flatNumber: "B202", residentType: "Owner", amount: "1100" },
-            { id: 12, name: "Pransshu", flatNumber: "A401", residentType: "Owner", amount: "1100" },
-            { id: 13, name: "Ashish Kasar", flatNumber: "B505", residentType: "Owner", amount: "1501" },
-            { id: 14, name: "Gajendra Rathore", flatNumber: "B803", residentType: "Owner", amount: "1100" },
-            { id: 15, name: "Mojib Patel", flatNumber: "C504", residentType: "Owner", amount: "1100" },
-            { id: 16, name: "Jayashree Phadtare", flatNumber: "C706", residentType: "Owner", amount: "1101" },
-            { id: 17, name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
-            { id: 18, name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
-            { id: 19, name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
-            { id: 20, name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
+        // Configuration - Same as live app
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
+        
+        // Pre-existing contributions (fallback)
+        const existingContributions = [
+            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "Owner", amount: "1111" },
+            { name: "Nitin Martand", flatNumber: "B608", residentType: "Owner", amount: "1100" },
+            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "Owner", amount: "1101" },
+            { name: "Mintu Singh", flatNumber: "B501", residentType: "Owner", amount: "1100" },
+            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "Owner", amount: "1100" },
+            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "Owner", amount: "1101" },
+            { name: "Silky Tripathi", flatNumber: "A506", residentType: "Owner", amount: "1101" },
+            { name: "Ranjeet K", flatNumber: "B102", residentType: "Owner", amount: "1111" },
+            { name: "Vijay Kadam", flatNumber: "B702", residentType: "Owner", amount: "1100" },
+            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "Owner", amount: "1100" },
+            { name: "Ravi Gupta", flatNumber: "B202", residentType: "Owner", amount: "1100" },
+            { name: "Pransshu", flatNumber: "A401", residentType: "Owner", amount: "1100" },
+            { name: "Ashish Kasar", flatNumber: "B505", residentType: "Owner", amount: "1501" },
+            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "Owner", amount: "1100" },
+            { name: "Mojib Patel", flatNumber: "C504", residentType: "Owner", amount: "1100" },
+            { name: "Jayashree Phadtare", flatNumber: "C706", residentType: "Owner", amount: "1101" },
+            { name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
+            { name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
+            { name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
+            { name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
         ];
 
+        let contributions = [];
         let editingId = null;
         let deleteId = null;
         let nextId = 21;
+
+        // Load contributions from Google Sheets
+        async function loadContributions() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const loadedContributions = [];
+                
+                // Add existing contributions first
+                existingContributions.forEach((contrib, index) => {
+                    loadedContributions.push({
+                        id: index + 1,
+                        ...contrib
+                    });
+                });
+                
+                // Add new contributions from sheet (skip header row)
+                let currentId = existingContributions.length + 1;
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                        loadedContributions.push({
+                            id: currentId++,
+                            name: values[1].replace(/"/g, '').trim(),
+                            flatNumber: values[2].replace(/"/g, '').trim(),
+                            residentType: values[3].replace(/"/g, '').trim(),
+                            amount: values[4].replace(/"/g, '').trim(),
+                            isNew: true
+                        });
+                    }
+                }
+                
+                contributions = loadedContributions;
+                nextId = currentId;
+                return true;
+            } catch (error) {
+                console.error('Error loading contributions:', error);
+                // Fallback to existing contributions only
+                contributions = existingContributions.map((contrib, index) => ({
+                    id: index + 1,
+                    ...contrib
+                }));
+                nextId = contributions.length + 1;
+                return false;
+            }
+        }
 
         // Generate flat numbers
         function generateFlatNumbers() {
@@ -497,7 +560,7 @@
                         <td>${contribution.name}</td>
                         <td>${contribution.flatNumber}</td>
                         <td>${contribution.residentType}</td>
-                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'No Amount'}</td>
+                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'No Amount'} ${contribution.isNew ? '🆕' : ''}</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editContribution(${contribution.id})">Edit</button>
                             <button class="btn btn-danger" onclick="deleteContribution(${contribution.id})">Delete</button>
@@ -645,11 +708,40 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             populateFlatDropdown();
+            
+            // Load data from Google Sheets
+            const loaded = await loadContributions();
+            if (!loaded) {
+                showMessage('⚠️ Could not load live data. Showing cached data only.', true, 'dashboard');
+            }
+            
             updateDashboard();
             updateTable();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(async () => {
+                await loadContributions();
+                updateDashboard();
+                if (document.querySelector('.tab-content.active').id === 'manage') {
+                    updateTable();
+                }
+            }, 30000);
         });
+
+        // Refresh data function
+        async function refreshData() {
+            const loaded = await loadContributions();
+            updateDashboard();
+            updateTable();
+            
+            if (loaded) {
+                showMessage('✅ Data refreshed successfully!', false, 'dashboard');
+            } else {
+                showMessage('⚠️ Could not refresh live data. Showing cached data.', true, 'dashboard');
+            }
+        }
 
         // Export to CSV function
         function exportToCSV() {
