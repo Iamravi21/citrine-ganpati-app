@@ -416,8 +416,19 @@
         // Load contributions from Google Sheets
         async function loadContributions() {
             try {
-                const response = await fetch(SHEET_CSV_URL);
+                // Add cache-busting parameter to force fresh data
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 const csvText = await response.text();
+                
+                console.log('Admin: Loaded CSV data:', csvText.substring(0, 200) + '...');
                 
                 // Parse CSV
                 const lines = csvText.trim().split('\n');
@@ -720,14 +731,15 @@
             updateDashboard();
             updateTable();
             
-            // Auto-refresh every 30 seconds
+            // Auto-refresh every 15 seconds to match public app
             setInterval(async () => {
+                console.log('Admin: Auto-refreshing data...');
                 await loadContributions();
                 updateDashboard();
                 if (document.querySelector('.tab-content.active').id === 'manage') {
                     updateTable();
                 }
-            }, 30000);
+            }, 15000);
         });
 
         // Refresh data function
