@@ -577,14 +577,8 @@
                 });
                 const csvText = await response.text();
                 
-                console.log('Public: Loaded CSV data:', csvText.substring(0, 200) + '...');
-                console.log('Public: Full CSV length:', csvText.length);
-                
                 // Parse CSV
                 const lines = csvText.trim().split('\n');
-                console.log('Public: CSV lines count:', lines.length);
-                console.log('Public: First few lines:', lines.slice(0, 3));
-                
                 const headers = lines[0].split(',');
                 const contributions = [];
                 
@@ -592,25 +586,18 @@
                 contributions.push(...existingContributions);
                 
                 // Add new contributions from sheet (skip header row)
-                let newEntriesCount = 0;
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
-                    console.log(`Public: Processing line ${i}:`, values);
                     if (values.length >= 4 && values[1].trim()) {
-                        const newEntry = {
+                        contributions.push({
                             name: values[1].replace(/"/g, ''),
                             flatNumber: values[2].replace(/"/g, ''),
                             residentType: values[3].replace(/"/g, ''),
                             amount: values[4].replace(/"/g, ''),
                             isNew: true
-                        };
-                        contributions.push(newEntry);
-                        newEntriesCount++;
-                        console.log('Public: Added new entry:', newEntry);
+                        });
                     }
                 }
-                
-                console.log(`Public: Total contributions: ${contributions.length}, New entries: ${newEntriesCount}`);
                 
                 displayContributions(contributions);
                 document.getElementById('loadingMessage').style.display = 'none';
@@ -750,17 +737,14 @@
                     
                     // Reload data multiple times to ensure we get the new data
                     setTimeout(() => {
-                        console.log('First refresh attempt...');
                         loadContributions();
                     }, 3000);
                     
                     setTimeout(() => {
-                        console.log('Second refresh attempt...');
                         loadContributions();
                     }, 8000);
                     
                     setTimeout(() => {
-                        console.log('Third refresh attempt...');
                         loadContributions();
                     }, 15000);
                 } else {
