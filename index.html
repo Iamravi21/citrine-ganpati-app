@@ -373,11 +373,11 @@
                     <label class="form-label">👥 Resident Type</label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="owner" name="residentType" value="owner">
+                            <input type="radio" id="owner" name="residentType" value="Owner">
                             <label for="owner">🏡 Owner</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="tenant" name="residentType" value="tenant">
+                            <input type="radio" id="tenant" name="residentType" value="Tenant">
                             <label for="tenant">🏠 Tenant</label>
                         </div>
                     </div>
@@ -424,9 +424,42 @@
     </div>
 
     <script>
-        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLN2RM8rVKwRfKH_TstguOws6WZ5O3gCPksJtAUcMOsP7tm4bm22eGO_knytIn4XWd/exec';
+        // Configuration
+        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeTa_L_6S10zb0owk8tSM8JgaVWTdGDYXTov7Pl7T1x96Nijw/formResponse';
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
         
+        // Form field IDs from pre-filled URL
+        const FIELD_IDS = {
+            name: 'entry.1950429096',
+            flatNumber: 'entry.1176797061', 
+            residentType: 'entry.1394194772',
+            amount: 'entry.532603436'
+        };
+
+        // Pre-existing contributions
+        const existingContributions = [
+            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "Owner", amount: "1111" },
+            { name: "Nitin Martand", flatNumber: "B608", residentType: "Owner", amount: "1100" },
+            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "Owner", amount: "1101" },
+            { name: "Mintu Singh", flatNumber: "B501", residentType: "Owner", amount: "1100" },
+            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "Owner", amount: "1100" },
+            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "Owner", amount: "1101" },
+            { name: "Silky Tripathi", flatNumber: "A506", residentType: "Owner", amount: "1101" },
+            { name: "Ranjeet K", flatNumber: "B102", residentType: "Owner", amount: "1111" },
+            { name: "Vijay Kadam", flatNumber: "B702", residentType: "Owner", amount: "1100" },
+            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "Owner", amount: "1100" },
+            { name: "Ravi Gupta", flatNumber: "B202", residentType: "Owner", amount: "1100" },
+            { name: "Pransshu", flatNumber: "A401", residentType: "Owner", amount: "1100" },
+            { name: "Ashish Kasar", flatNumber: "B505", residentType: "Owner", amount: "1501" },
+            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "Owner", amount: "1100" },
+            { name: "Mojib Patel", flatNumber: "C504", residentType: "Owner", amount: "1100" },
+            { name: "Jayashree Phadtare", flatNumber: "C706", residentType: "Owner", amount: "1101" },
+            { name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
+            { name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
+            { name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
+            { name: "Manohar Jha", flatNumber: "A305", residentType: "Owner", amount: "1500" }
+        ];
+
         // Generate flat numbers
         function generateFlatNumbers() {
             const flatSelect = document.getElementById('flatNumber');
@@ -476,7 +509,7 @@
                 const contributionGroup = document.getElementById('contributionGroup');
                 const contributionAmount = document.getElementById('contributionAmount');
                 
-                if (this.value === 'owner') {
+                if (this.value === 'Owner') {
                     contributionGroup.style.display = 'block';
                     contributionAmount.required = true;
                 } else {
@@ -492,38 +525,60 @@
             try {
                 document.getElementById('loadingMessage').style.display = 'block';
                 
-                const response = await fetch(SCRIPT_URL);
-                const contributions = await response.json();
+                const response = await fetch(SHEET_CSV_URL);
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const headers = lines[0].split(',');
+                const contributions = [];
+                
+                // Add existing contributions first
+                contributions.push(...existingContributions);
+                
+                // Add new contributions from sheet (skip header row)
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1].trim()) {
+                        contributions.push({
+                            name: values[1].replace(/"/g, ''),
+                            flatNumber: values[2].replace(/"/g, ''),
+                            residentType: values[3].replace(/"/g, ''),
+                            amount: values[4].replace(/"/g, '')
+                        });
+                    }
+                }
                 
                 displayContributions(contributions);
                 document.getElementById('loadingMessage').style.display = 'none';
             } catch (error) {
                 console.error('Error loading contributions:', error);
-                document.getElementById('loadingMessage').textContent = 'Error loading data. Please refresh the page.';
+                // Fallback to existing contributions only
+                displayContributions(existingContributions);
+                document.getElementById('loadingMessage').style.display = 'none';
             }
         }
 
-        // Save contribution to Google Sheets
-        async function saveContribution(contribution) {
+        // Submit to Google Forms
+        async function submitToGoogleForms(formData) {
+            const submitURL = FORM_URL;
+            const params = new URLSearchParams();
+            
+            params.append(FIELD_IDS.name, formData.name);
+            params.append(FIELD_IDS.flatNumber, formData.flatNumber);
+            params.append(FIELD_IDS.residentType, formData.residentType);
+            params.append(FIELD_IDS.amount, formData.amount);
+            
             try {
-                const response = await fetch(SCRIPT_URL, {
+                await fetch(submitURL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(contribution)
+                    body: params,
+                    mode: 'no-cors'
                 });
-                
-                const result = await response.json();
-                
-                if (result.error) {
-                    throw new Error(result.error);
-                }
-                
                 return true;
             } catch (error) {
-                console.error('Error saving contribution:', error);
-                throw error;
+                console.error('Error submitting to Google Forms:', error);
+                return false;
             }
         }
 
@@ -542,16 +597,16 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                const amount = contribution.ResidentType === 'owner' ? `₹${contribution.Amount}` : 'Tenant';
-                if (contribution.ResidentType === 'owner') {
-                    total += parseInt(contribution.Amount || 0);
-                    ownerContributions.push(parseInt(contribution.Amount || 0));
+                const amount = contribution.residentType === 'Owner' ? `₹${contribution.amount}` : 'Tenant';
+                if (contribution.residentType === 'Owner' && contribution.amount) {
+                    total += parseInt(contribution.amount || 0);
+                    ownerContributions.push(parseInt(contribution.amount || 0));
                 }
                 
                 item.innerHTML = `
                     <div>
-                        <strong>${contribution.Name}</strong><br>
-                        <small>${contribution.FlatNumber} - ${contribution.ResidentType === 'owner' ? 'Owner' : 'Tenant'}</small>
+                        <strong>${contribution.name}</strong><br>
+                        <small>${contribution.flatNumber} - ${contribution.residentType}</small>
                     </div>
                     <div style="font-weight: bold; color: #FF6B35;">${amount}</div>
                 `;
@@ -600,37 +655,37 @@
                 const name = document.getElementById('userName').value;
                 const flatNumber = document.getElementById('flatNumber').value;
                 const residentType = document.querySelector('input[name="residentType"]:checked').value;
-                const amount = document.getElementById('contributionAmount').value;
+                const amount = document.getElementById('contributionAmount').value || '0';
                 
-                const contribution = {
+                const formData = {
                     name: name,
                     flatNumber: flatNumber,
                     residentType: residentType,
-                    amount: residentType === 'owner' ? amount : 0,
-                    timestamp: new Date().toISOString()
+                    amount: residentType === 'Owner' ? amount : '0'
                 };
                 
-                await saveContribution(contribution);
+                const success = await submitToGoogleForms(formData);
                 
-                // Reload data to show updated list
-                await loadContributions();
-                
-                // Show success message
-                showMessage('🎉 Thank you for your contribution! Ganpati Bappa Morya! 🎉');
-                
-                // Reset form
-                this.reset();
-                document.getElementById('contributionGroup').style.display = 'none';
-                document.querySelectorAll('.radio-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                
-            } catch (error) {
-                if (error.message === 'Flat already contributed') {
-                    showMessage('❌ This flat has already made a contribution!', true);
+                if (success) {
+                    showMessage('🎉 Thank you for your contribution! Ganpati Bappa Morya! 🎉');
+                    
+                    // Reset form
+                    this.reset();
+                    document.getElementById('contributionGroup').style.display = 'none';
+                    document.querySelectorAll('.radio-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    
+                    // Reload data after 2 seconds
+                    setTimeout(() => {
+                        loadContributions();
+                    }, 2000);
                 } else {
                     showMessage('❌ Error submitting contribution. Please try again.', true);
                 }
+                
+            } catch (error) {
+                showMessage('❌ Error submitting contribution. Please try again.', true);
             }
             
             submitBtn.disabled = false;
