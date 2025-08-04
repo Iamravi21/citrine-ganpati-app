@@ -559,8 +559,19 @@
             try {
                 document.getElementById('loadingMessage').style.display = 'block';
                 
-                const response = await fetch(SHEET_CSV_URL);
+                // Add cache-busting parameter to force fresh data
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
                 const csvText = await response.text();
+                
+                console.log('Loaded CSV data:', csvText.substring(0, 200) + '...');
                 
                 // Parse CSV
                 const lines = csvText.trim().split('\n');
@@ -720,10 +731,21 @@
                     // Keep contribution field hidden until user selects resident type again
                     document.getElementById('contributionGroup').style.display = 'none';
                     
-                    // Reload data after 5 seconds to get from Google Sheets
+                    // Reload data multiple times to ensure we get the new data
                     setTimeout(() => {
+                        console.log('First refresh attempt...');
                         loadContributions();
-                    }, 5000);
+                    }, 3000);
+                    
+                    setTimeout(() => {
+                        console.log('Second refresh attempt...');
+                        loadContributions();
+                    }, 8000);
+                    
+                    setTimeout(() => {
+                        console.log('Third refresh attempt...');
+                        loadContributions();
+                    }, 15000);
                 } else {
                     showMessage('❌ Error submitting contribution. Please try again.', true);
                 }
