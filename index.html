@@ -416,6 +416,12 @@
             <div class="total-amount" id="totalAmount">
                 Total Collected: ₹0
             </div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="loadContributions()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                    🔄 Refresh Data
+                </button>
+            </div>
         </div>
 
         <div class="blessing">
@@ -571,10 +577,14 @@
                 });
                 const csvText = await response.text();
                 
-                console.log('Loaded CSV data:', csvText.substring(0, 200) + '...');
+                console.log('Public: Loaded CSV data:', csvText.substring(0, 200) + '...');
+                console.log('Public: Full CSV length:', csvText.length);
                 
                 // Parse CSV
                 const lines = csvText.trim().split('\n');
+                console.log('Public: CSV lines count:', lines.length);
+                console.log('Public: First few lines:', lines.slice(0, 3));
+                
                 const headers = lines[0].split(',');
                 const contributions = [];
                 
@@ -582,18 +592,25 @@
                 contributions.push(...existingContributions);
                 
                 // Add new contributions from sheet (skip header row)
+                let newEntriesCount = 0;
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
+                    console.log(`Public: Processing line ${i}:`, values);
                     if (values.length >= 4 && values[1].trim()) {
-                        contributions.push({
+                        const newEntry = {
                             name: values[1].replace(/"/g, ''),
                             flatNumber: values[2].replace(/"/g, ''),
                             residentType: values[3].replace(/"/g, ''),
                             amount: values[4].replace(/"/g, ''),
                             isNew: true
-                        });
+                        };
+                        contributions.push(newEntry);
+                        newEntriesCount++;
+                        console.log('Public: Added new entry:', newEntry);
                     }
                 }
+                
+                console.log(`Public: Total contributions: ${contributions.length}, New entries: ${newEntriesCount}`);
                 
                 displayContributions(contributions);
                 document.getElementById('loadingMessage').style.display = 'none';
