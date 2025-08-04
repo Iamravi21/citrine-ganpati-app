@@ -445,14 +445,23 @@
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
                     if (values.length >= 6 && values[2] && values[2].trim()) {
-                        loadedContributions.push({
+                        const newEntry = {
                             id: currentId++,
                             name: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
                             flatNumber: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
                             residentType: values[4].replace(/"/g, '').replace(/\r/g, '').trim(),
                             amount: values[5].replace(/"/g, '').replace(/\r/g, '').trim(),
                             isNew: true
-                        });
+                        };
+                        
+                        // Check if this entry already exists in existing contributions
+                        const isDuplicate = existingContributions.some(existing => 
+                            existing.flatNumber === newEntry.flatNumber
+                        );
+                        
+                        if (!isDuplicate) {
+                            loadedContributions.push(newEntry);
+                        }
                     }
                 }
                 
@@ -569,7 +578,7 @@
                         <td>${contribution.name}</td>
                         <td>${contribution.flatNumber}</td>
                         <td>${contribution.residentType}</td>
-                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'No Amount'} ${contribution.isNew ? '🆕' : ''}</td>
+                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : (contribution.residentType === 'Tenant' ? 'Tenant' : '₹0')} ${contribution.isNew ? '🆕' : ''}</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editContribution(${contribution.id})">Edit</button>
                             <button class="btn btn-danger" onclick="deleteContribution(${contribution.id})">Delete</button>
