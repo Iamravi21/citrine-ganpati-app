@@ -520,6 +520,42 @@
             });
         });
 
+        // Add contribution to local display immediately
+        function addToLocalDisplay(formData) {
+            const contributionsData = document.getElementById('contributionsData');
+            
+            // Create new contribution item
+            const item = document.createElement('div');
+            item.className = 'contribution-item';
+            item.style.background = 'rgba(76,175,80,0.2)';
+            item.style.borderLeft = '4px solid #4CAF50';
+            
+            const amount = formData.amount && formData.amount !== '0' ? `₹${formData.amount}` : 'Tenant';
+            
+            item.innerHTML = `
+                <div>
+                    <strong>${formData.name}</strong> ✨<br>
+                    <small>${formData.flatNumber} - ${formData.residentType} (Just submitted!)</small>
+                </div>
+                <div style="font-weight: bold; color: #4CAF50;">${amount}</div>
+            `;
+            
+            // Add to top of list
+            contributionsData.insertBefore(item, contributionsData.firstChild);
+            
+            // Update stats
+            const totalContributors = document.getElementById('totalContributors');
+            const currentCount = parseInt(totalContributors.textContent) || 0;
+            totalContributors.textContent = currentCount + 1;
+            
+            if (formData.amount && formData.amount !== '0') {
+                const totalAmount = document.getElementById('totalAmount');
+                const currentTotal = parseInt(totalAmount.textContent.replace(/[^0-9]/g, '')) || 0;
+                const newTotal = currentTotal + parseInt(formData.amount);
+                totalAmount.textContent = `Total Collected: ₹${newTotal.toLocaleString()}`;
+            }
+        }
+
         // Load contributions from Google Sheets
         async function loadContributions() {
             try {
@@ -544,7 +580,8 @@
                             name: values[1].replace(/"/g, ''),
                             flatNumber: values[2].replace(/"/g, ''),
                             residentType: values[3].replace(/"/g, ''),
-                            amount: values[4].replace(/"/g, '')
+                            amount: values[4].replace(/"/g, ''),
+                            isNew: true
                         });
                     }
                 }
@@ -605,8 +642,8 @@
                 
                 item.innerHTML = `
                     <div>
-                        <strong>${contribution.name}</strong><br>
-                        <small>${contribution.flatNumber} - ${contribution.residentType}</small>
+                        <strong>${contribution.name}</strong>${contribution.isNew ? ' 🆕' : ''}<br>
+                        <small>${contribution.flatNumber} - ${contribution.residentType}${contribution.isNew ? ' (New!)' : ''}</small>
                     </div>
                     <div style="font-weight: bold; color: #FF6B35;">${amount}</div>
                 `;
@@ -667,7 +704,10 @@
                 const success = await submitToGoogleForms(formData);
                 
                 if (success) {
-                    showMessage('🎉 Thank you for your contribution! Ganpati Bappa Morya! 🎉');
+                    showMessage('🎉 Thank you for your contribution! Your details will appear below shortly. Ganpati Bappa Morya! 🎉');
+                    
+                    // Add to local display immediately
+                    addToLocalDisplay(formData);
                     
                     // Reset form
                     this.reset();
@@ -676,10 +716,10 @@
                         option.classList.remove('selected');
                     });
                     
-                    // Reload data after 2 seconds
+                    // Reload data after 5 seconds to get from Google Sheets
                     setTimeout(() => {
                         loadContributions();
-                    }, 2000);
+                    }, 5000);
                 } else {
                     showMessage('❌ Error submitting contribution. Please try again.', true);
                 }
@@ -697,8 +737,8 @@
             generateFlatNumbers();
             loadContributions();
             
-            // Auto-refresh contributions every 30 seconds
-            setInterval(loadContributions, 30000);
+            // Auto-refresh contributions every 15 seconds for faster updates
+            setInterval(loadContributions, 15000);
         });
     </script>
 </body>
