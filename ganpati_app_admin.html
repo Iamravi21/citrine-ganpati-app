@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Citrine Housing Society - Ganpati Admin Panel</title>
+    <title>Citrine Housing Society - Ganpati Admin Panel (Live Data)</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -33,6 +33,22 @@
             font-size: 28px;
             color: #8B4513;
             margin-bottom: 10px;
+        }
+
+        .live-indicator {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         .tabs {
@@ -70,80 +86,6 @@
             display: block;
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: bold;
-            color: #8B4513;
-            margin-bottom: 8px;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #D4AF37;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #FF6B35, #F7931E);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .contribution-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .contribution-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            margin: 10px 0;
-            background: rgba(255,107,53,0.1);
-            border-radius: 10px;
-            border-left: 4px solid #FF6B35;
-        }
-
-        .contribution-info {
-            flex: 1;
-        }
-
-        .contribution-actions {
-            display: flex;
-            gap: 10px;
-        }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -171,9 +113,96 @@
             margin-top: 5px;
         }
 
-        .export-section {
+        .contribution-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .contribution-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,107,53,0.1);
+            border-radius: 10px;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .contribution-info {
+            flex: 1;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .loading {
             text-align: center;
-            margin-top: 30px;
+            color: #8B4513;
+            font-style: italic;
+            padding: 20px;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .google-sheets-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .google-sheets-link a {
+            color: #FF6B35;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: 2px solid #FF6B35;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .google-sheets-link a:hover {
+            background: #FF6B35;
+            color: white;
         }
 
         @media (max-width: 600px) {
@@ -186,15 +215,15 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="admin-title">🔧 Admin Panel - Ganpati Festival</div>
-            <div>Citrine Housing Society</div>
+            <div class="admin-title">🔧 Admin Panel - Live Data</div>
+            <div>Citrine Housing Society - Ganpati Festival</div>
+            <div class="live-indicator">🔴 LIVE - Connected to Google Sheets</div>
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
-            <button class="tab-btn" onclick="showTab('add')">➕ Add Contribution</button>
-            <button class="tab-btn" onclick="showTab('manage')">✏️ Manage Data</button>
-            <button class="tab-btn" onclick="showTab('export')">📤 Export</button>
+            <button class="tab-btn active" onclick="showTab('dashboard')">📊 Live Dashboard</button>
+            <button class="tab-btn" onclick="showTab('manage')">📋 View All Data</button>
+            <button class="tab-btn" onclick="showTab('sheets')">📊 Google Sheets</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -217,80 +246,48 @@
                     <div class="stat-label">Pending Flats</div>
                 </div>
             </div>
+            <div class="loading" id="loadingMessage">Loading live data...</div>
             <div id="recentContributions"></div>
-        </div>
-
-        <!-- Add Contribution Tab -->
-        <div id="add" class="tab-content">
-            <h3>Add New Contribution</h3>
-            <form id="addForm">
-                <div class="form-group">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-input" id="addName" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Flat Number</label>
-                    <select class="form-select" id="addFlat" required></select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Resident Type</label>
-                    <select class="form-select" id="addType" required>
-                        <option value="">Select Type</option>
-                        <option value="owner">Owner</option>
-                        <option value="tenant">Tenant</option>
-                    </select>
-                </div>
-                <div class="form-group" id="amountGroup">
-                    <label class="form-label">Amount (₹) *</label>
-                    <input type="number" class="form-input" id="addAmount" min="1" placeholder="Enter contribution amount" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Contribution</button>
-            </form>
         </div>
 
         <!-- Manage Data Tab -->
         <div id="manage" class="tab-content">
-            <h3>Manage Contributions</h3>
+            <h3>All Contributions (Live Data)</h3>
             <div class="contribution-list" id="manageList"></div>
         </div>
 
-        <!-- Export Tab -->
-        <div id="export" class="tab-content">
-            <h3>Export Data</h3>
-            <div class="export-section">
-                <button class="btn btn-success" onclick="exportToCSV()">📊 Export to CSV</button>
-                <button class="btn btn-primary" onclick="exportToJSON()">📄 Export to JSON</button>
-                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+        <!-- Google Sheets Tab -->
+        <div id="sheets" class="tab-content">
+            <h3>Direct Google Sheets Access</h3>
+            <p style="text-align: center; margin: 20px 0; color: #8B4513;">
+                For advanced editing, access the Google Sheet directly:
+            </p>
+            <div class="google-sheets-link">
+                <a href="#" id="sheetsLink" target="_blank">📊 Open Google Sheets</a>
             </div>
-            <div style="margin-top: 30px;">
-                <h4>Import Data</h4>
-                <input type="file" id="importFile" accept=".json,.csv" style="margin: 10px 0;">
-                <button class="btn btn-primary" onclick="importData()">📥 Import Data</button>
+            <div style="margin-top: 30px; padding: 20px; background: rgba(255,107,53,0.1); border-radius: 15px;">
+                <h4 style="color: #8B4513; margin-bottom: 15px;">Admin Instructions:</h4>
+                <ul style="color: #8B4513; line-height: 1.8;">
+                    <li><strong>Add Contributions:</strong> Add new rows in Google Sheets</li>
+                    <li><strong>Edit Data:</strong> Click any cell in Google Sheets to edit</li>
+                    <li><strong>Delete Entries:</strong> Right-click row → Delete row</li>
+                    <li><strong>Export Data:</strong> File → Download → CSV/Excel</li>
+                    <li><strong>View Changes:</strong> Refresh this page to see updates</li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <script>
-        let contributions = [];
+    <button class="refresh-btn" onclick="loadContributions()" title="Refresh Data">🔄</button>
 
-        // Initialize with existing data
-        const existingContributions = [
-            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "owner", amount: 1111, timestamp: "2024-01-01T00:00:00.000Z" },
-            { name: "Nitin Martand", flatNumber: "B608", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:01:00.000Z" },
-            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:02:00.000Z" },
-            { name: "Mintu Singh", flatNumber: "B501", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:03:00.000Z" },
-            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:04:00.000Z" },
-            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:05:00.000Z" },
-            { name: "Silky Tripathi", flatNumber: "A506", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:06:00.000Z" },
-            { name: "Ranjeet K", flatNumber: "B102", residentType: "owner", amount: 1111, timestamp: "2024-01-01T00:07:00.000Z" },
-            { name: "Vijay Kadam", flatNumber: "B702", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:08:00.000Z" },
-            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:09:00.000Z" },
-            { name: "Ravi Gupta", flatNumber: "B202", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:10:00.000Z" },
-            { name: "Pransshu", flatNumber: "A401", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:11:00.000Z" },
-            { name: "Ashish Kasar", flatNumber: "B505", residentType: "owner", amount: 1501, timestamp: "2024-01-01T00:12:00.000Z" },
-            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:13:00.000Z" },
-            { name: "Mojib Patel", flatNumber: "C504", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:14:00.000Z" }
-        ];
+    <script>
+        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLN2RM8rVKwRfKH_TstguOws6WZ5O3gCPksJtAUcMOsP7tm4bm22eGO_knytIn4XWd/exec';
+        
+        // REPLACE THIS WITH YOUR GOOGLE SHEETS URL
+        const SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1mVmqBT67uLt2xGeAynKj1IpnwV2INw-UZJAScc_3Le4/edit';
+
+        let contributions = [];
 
         function generateFlatNumbers() {
             const flats = [];
@@ -315,18 +312,6 @@
             return flats;
         }
 
-        function populateFlatDropdown() {
-            const flats = generateFlatNumbers();
-            const select = document.getElementById('addFlat');
-            select.innerHTML = '<option value="">Select Flat</option>';
-            flats.forEach(flat => {
-                const option = document.createElement('option');
-                option.value = flat;
-                option.textContent = flat;
-                select.appendChild(option);
-            });
-        }
-
         function showTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -338,22 +323,29 @@
             if (tabName === 'manage') updateManageList();
         }
 
-        function loadData() {
-            const stored = localStorage.getItem('ganpatiContributions');
-            contributions = stored ? JSON.parse(stored) : [...existingContributions];
-            saveData();
-        }
-
-        function saveData() {
-            localStorage.setItem('ganpatiContributions', JSON.stringify(contributions));
+        async function loadContributions() {
+            try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                document.getElementById('loadingMessage').textContent = 'Loading live data...';
+                
+                const response = await fetch(SCRIPT_URL);
+                contributions = await response.json();
+                
+                updateDashboard();
+                updateManageList();
+                document.getElementById('loadingMessage').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading contributions:', error);
+                document.getElementById('loadingMessage').textContent = 'Error loading data. Please check your Google Sheets setup.';
+            }
         }
 
         function updateDashboard() {
-            const total = contributions.reduce((sum, c) => sum + (c.residentType === 'owner' ? parseInt(c.amount || 0) : 0), 0);
-            const ownerContributions = contributions.filter(c => c.residentType === 'owner' && c.amount > 0);
+            const total = contributions.reduce((sum, c) => sum + (c.ResidentType === 'owner' ? parseInt(c.Amount || 0) : 0), 0);
+            const ownerContributions = contributions.filter(c => c.ResidentType === 'owner' && c.Amount > 0);
             const avg = ownerContributions.length > 0 ? Math.round(total / ownerContributions.length) : 0;
             const allFlats = generateFlatNumbers();
-            const contributedFlats = contributions.map(c => c.flatNumber);
+            const contributedFlats = contributions.map(c => c.FlatNumber);
             const pending = allFlats.length - contributedFlats.length;
 
             document.getElementById('totalContributors').textContent = contributions.length;
@@ -362,18 +354,18 @@
             document.getElementById('pendingFlats').textContent = pending;
 
             // Show recent contributions
-            const recent = contributions.slice(-5).reverse();
+            const recent = contributions.slice(-10).reverse();
             const recentHTML = recent.map(c => `
                 <div class="contribution-row">
                     <div>
-                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
-                        <small>${c.residentType === 'owner' ? `₹${c.amount}` : 'Tenant'}</small>
+                        <strong>${c.Name}</strong> - ${c.FlatNumber}<br>
+                        <small>${c.ResidentType === 'owner' ? `₹${c.Amount}` : 'Tenant'} - ${new Date(c.Timestamp).toLocaleDateString()}</small>
                     </div>
                 </div>
             `).join('');
             
             document.getElementById('recentContributions').innerHTML = `
-                <h3>Recent Contributions</h3>
+                <h3>Recent Contributions (Live)</h3>
                 ${recentHTML}
             `;
         }
@@ -382,138 +374,25 @@
             const listHTML = contributions.map((c, index) => `
                 <div class="contribution-row">
                     <div class="contribution-info">
-                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
-                        <small>${c.residentType === 'owner' ? `₹${c.amount}` : 'Tenant'}</small>
-                    </div>
-                    <div class="contribution-actions">
-                        <button class="btn btn-primary" onclick="editContribution(${index})">Edit</button>
-                        <button class="btn btn-danger" onclick="deleteContribution(${index})">Delete</button>
+                        <strong>${c.Name}</strong> - ${c.FlatNumber}<br>
+                        <small>${c.ResidentType === 'owner' ? `₹${c.Amount}` : 'Tenant'} - ${new Date(c.Timestamp).toLocaleDateString()}</small>
                     </div>
                 </div>
             `).join('');
             
-            document.getElementById('manageList').innerHTML = listHTML;
+            document.getElementById('manageList').innerHTML = listHTML || '<p style="text-align: center; color: #8B4513;">No contributions found.</p>';
         }
 
-        function editContribution(index) {
-            const c = contributions[index];
-            const newName = prompt('Edit Name:', c.name);
-            const newAmount = c.residentType === 'owner' ? prompt('Edit Amount:', c.amount) : null;
-            
-            if (newName) {
-                contributions[index].name = newName;
-                if (newAmount && c.residentType === 'owner') {
-                    contributions[index].amount = parseInt(newAmount);
-                }
-                saveData();
-                updateManageList();
-                updateDashboard();
-            }
-        }
-
-        function deleteContribution(index) {
-            if (confirm('Are you sure you want to delete this contribution?')) {
-                contributions.splice(index, 1);
-                saveData();
-                updateManageList();
-                updateDashboard();
-            }
-        }
-
-        function exportToCSV() {
-            const csv = [
-                ['Name', 'Flat Number', 'Type', 'Amount', 'Date'],
-                ...contributions.map(c => [
-                    c.name,
-                    c.flatNumber,
-                    c.residentType,
-                    c.residentType === 'owner' ? c.amount : 'N/A',
-                    new Date(c.timestamp).toLocaleDateString()
-                ])
-            ].map(row => row.join(',')).join('\n');
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ganpati_contributions.csv';
-            a.click();
-        }
-
-        function exportToJSON() {
-            const json = JSON.stringify(contributions, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'ganpati_contributions.json';
-            a.click();
-        }
-
-        function clearAllData() {
-            if (confirm('Are you sure you want to clear ALL data? This cannot be undone!')) {
-                contributions = [];
-                saveData();
-                updateDashboard();
-                updateManageList();
-            }
-        }
-
-        // Event Listeners - Amount field always visible and required
-        document.getElementById('addType').addEventListener('change', function() {
-            const amountGroup = document.getElementById('amountGroup');
-            const amountInput = document.getElementById('addAmount');
-            
-            // Always show amount field and make it required
-            amountGroup.style.display = 'block';
-            amountInput.required = true;
-        });
-
-        // Show amount field by default when page loads
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            populateFlatDropdown();
-            loadData();
-            updateDashboard();
+            // Set Google Sheets link
+            document.getElementById('sheetsLink').href = SHEETS_URL;
             
-            // Show amount field by default
-            document.getElementById('amountGroup').style.display = 'block';
-            document.getElementById('addAmount').required = true;
+            loadContributions();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadContributions, 30000);
         });
-
-        document.getElementById('addForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('addName').value;
-            const flatNumber = document.getElementById('addFlat').value;
-            const residentType = document.getElementById('addType').value;
-            const amount = document.getElementById('addAmount').value;
-            
-            // Check for duplicate
-            if (contributions.find(c => c.flatNumber === flatNumber)) {
-                alert('This flat has already contributed!');
-                return;
-            }
-            
-            const contribution = {
-                name,
-                flatNumber,
-                residentType,
-                amount: parseInt(amount),
-                timestamp: new Date().toISOString()
-            };
-            
-            contributions.push(contribution);
-            saveData();
-            
-            // Reset form
-            this.reset();
-            document.getElementById('amountGroup').style.display = 'none';
-            
-            alert('Contribution added successfully!');
-            updateDashboard();
-        });
-
-
     </script>
 </body>
 </html>
