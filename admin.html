@@ -313,6 +313,16 @@
         <!-- Manage Records Tab -->
         <div id="manage" class="tab-content">
             <h3>Manage All Records</h3>
+            
+            <div style="background: rgba(255,193,7,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #FFC107;">
+                <h4 style="color: #8B4513; margin-bottom: 10px;">⚠️ Important Notice</h4>
+                <p style="color: #8B4513; font-size: 14px; line-height: 1.5;">
+                    <strong>Editing:</strong> Changes to existing records are local only and will be lost on refresh.<br>
+                    <strong>Deleting:</strong> Only removes from local view, not from Google Sheets.<br>
+                    <strong>Adding:</strong> New entries are saved to Google Sheets and will sync with the public app.
+                </p>
+            </div>
+            
             <div class="success-message" id="successMessage"></div>
             <div class="error-message" id="errorMessage"></div>
             
@@ -383,6 +393,15 @@
     <script>
         // Configuration - Same as live app
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
+        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeTa_L_6S10zb0owk8tSM8JgaVWTdGDYXTov7Pl7T1x96Nijw/formResponse';
+        
+        // Form field IDs from pre-filled URL
+        const FIELD_IDS = {
+            name: 'entry.1950429096',
+            flatNumber: 'entry.1176797061', 
+            residentType: 'entry.1394194772',
+            amount: 'entry.532603436'
+        };
         
         // Pre-existing contributions (fallback)
         const existingContributions = [
@@ -622,7 +641,13 @@
             editingId = null;
             updateTable();
             updateDashboard();
-            showMessage('Record updated successfully!', false, 'manage');
+            
+            // Show warning about Google Sheets
+            if (contribution.isNew) {
+                showMessage('⚠️ Record updated locally only. Google Sheets entries cannot be edited directly. Changes will be lost on next refresh.', true, 'manage');
+            } else {
+                showMessage('Record updated locally only. Changes will be lost on next refresh.', true, 'manage');
+            }
         }
 
         function cancelEdit() {
@@ -650,7 +675,30 @@
             deleteId = null;
         }
 
-        function addContribution() {
+        // Submit to Google Forms
+        async function submitToGoogleForms(formData) {
+            const submitURL = FORM_URL;
+            const params = new URLSearchParams();
+            
+            params.append(FIELD_IDS.name, formData.name);
+            params.append(FIELD_IDS.flatNumber, formData.flatNumber);
+            params.append(FIELD_IDS.residentType, formData.residentType);
+            params.append(FIELD_IDS.amount, formData.amount);
+            
+            try {
+                await fetch(submitURL, {
+                    method: 'POST',
+                    body: params,
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                console.error('Error submitting to Google Forms:', error);
+                return false;
+            }
+        }
+
+        async function addContribution() {
             const name = document.getElementById('newName').value;
             const flatNumber = document.getElementById('newFlat').value;
             const residentType = document.getElementById('newType').value;
@@ -668,24 +716,48 @@
                 return;
             }
             
-            const newContribution = {
-                id: nextId++,
+            // Submit to Google Forms
+            const formData = {
                 name: name,
                 flatNumber: flatNumber,
                 residentType: residentType,
                 amount: amount
             };
             
-            contributions.push(newContribution);
+            const success = await submitToGoogleForms(formData);
             
-            // Clear form
-            document.getElementById('newName').value = '';
-            document.getElementById('newFlat').value = '';
-            document.getElementById('newType').value = '';
-            document.getElementById('newAmount').value = '';
-            
-            updateDashboard();
-            showMessage('New contribution added successfully!', false, 'add');
+            if (success) {
+                // Add to local display immediately
+                const newContribution = {
+                    id: nextId++,
+                    name: name,
+                    flatNumber: flatNumber,
+                    residentType: residentType,
+                    amount: amount,
+                    isNew: true
+                };
+                
+                contributions.push(newContribution);
+                
+                // Clear form
+                document.getElementById('newName').value = '';
+                document.getElementById('newFlat').value = '';
+                document.getElementById('newType').value = '';
+                document.getElementById('newAmount').value = '';
+                
+                updateDashboard();
+                updateTable();
+                showMessage('New contribution added and saved to Google Sheets!', false, 'add');
+                
+                // Refresh data after a few seconds
+                setTimeout(() => {
+                    loadContributions();
+                    updateDashboard();
+                    updateTable();
+                }, 3000);
+            } else {
+                showMessage('Error saving to Google Sheets. Please try again.', true, 'add');
+            }
         }
 
         function showMessage(message, isError, section) {
