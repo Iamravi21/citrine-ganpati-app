@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -56,6 +56,7 @@
             gap: 10px;
             margin-bottom: 20px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -99,6 +100,11 @@
             border-radius: 15px;
             text-align: center;
             border: 2px solid #FF6B35;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
 
         .stat-value {
@@ -114,7 +120,7 @@
         }
 
         .contribution-list {
-            max-height: 400px;
+            max-height: 500px;
             overflow-y: auto;
         }
 
@@ -127,10 +133,22 @@
             background: rgba(255,107,53,0.1);
             border-radius: 10px;
             border-left: 4px solid #FF6B35;
+            transition: all 0.3s ease;
+        }
+
+        .contribution-row:hover {
+            background: rgba(255,107,53,0.2);
+            transform: translateX(5px);
         }
 
         .contribution-info {
             flex: 1;
+        }
+
+        .contribution-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF6B35;
         }
 
         .btn {
@@ -185,30 +203,57 @@
             transform: scale(1.1);
         }
 
-        .google-sheets-link {
+        .google-links {
             text-align: center;
             margin-top: 20px;
         }
 
-        .google-sheets-link a {
+        .google-links a {
             color: #FF6B35;
             text-decoration: none;
             font-weight: bold;
             padding: 10px 20px;
             border: 2px solid #FF6B35;
             border-radius: 25px;
+            margin: 0 10px;
             transition: all 0.3s ease;
+            display: inline-block;
         }
 
-        .google-sheets-link a:hover {
+        .google-links a:hover {
             background: #FF6B35;
             color: white;
         }
 
-        @media (max-width: 600px) {
+        .summary-section {
+            background: rgba(255,215,0,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #FFD700;
+        }
+
+        .pending-flats {
+            background: rgba(244,67,54,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #f44336;
+        }
+
+        .recent-contributions {
+            background: rgba(76,175,80,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        @media (max-width: 768px) {
             .tabs { flex-direction: column; }
-            .contribution-row { flex-direction: column; gap: 10px; }
+            .contribution-row { flex-direction: column; gap: 10px; text-align: center; }
             .stats-grid { grid-template-columns: 1fr; }
+            .google-links a { display: block; margin: 5px 0; }
         }
     </style>
 </head>
@@ -217,13 +262,14 @@
         <div class="header">
             <div class="admin-title">🔧 Admin Panel - Live Data</div>
             <div>Citrine Housing Society - Ganpati Festival</div>
-            <div class="live-indicator">🔴 LIVE - Connected to Google Sheets</div>
+            <div class="live-indicator">🔴 LIVE - Connected to Google Forms & Sheets</div>
         </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('dashboard')">📊 Live Dashboard</button>
-            <button class="tab-btn" onclick="showTab('manage')">📋 View All Data</button>
-            <button class="tab-btn" onclick="showTab('sheets')">📊 Google Sheets</button>
+            <button class="tab-btn" onclick="showTab('contributions')">📋 All Contributions</button>
+            <button class="tab-btn" onclick="showTab('analytics')">📈 Analytics</button>
+            <button class="tab-btn" onclick="showTab('manage')">⚙️ Manage</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -245,34 +291,64 @@
                     <div class="stat-value" id="pendingFlats">0</div>
                     <div class="stat-label">Pending Flats</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="ownerCount">0</div>
+                    <div class="stat-label">Owners</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tenantCount">0</div>
+                    <div class="stat-label">Tenants</div>
+                </div>
             </div>
+            
             <div class="loading" id="loadingMessage">Loading live data...</div>
-            <div id="recentContributions"></div>
-        </div>
-
-        <!-- Manage Data Tab -->
-        <div id="manage" class="tab-content">
-            <h3>All Contributions (Live Data)</h3>
-            <div class="contribution-list" id="manageList"></div>
-        </div>
-
-        <!-- Google Sheets Tab -->
-        <div id="sheets" class="tab-content">
-            <h3>Direct Google Sheets Access</h3>
-            <p style="text-align: center; margin: 20px 0; color: #8B4513;">
-                For advanced editing, access the Google Sheet directly:
-            </p>
-            <div class="google-sheets-link">
-                <a href="#" id="sheetsLink" target="_blank">📊 Open Google Sheets</a>
+            
+            <div class="recent-contributions" id="recentSection" style="display:none;">
+                <h3 style="color: #4CAF50; margin-bottom: 15px;">📈 Recent Contributions</h3>
+                <div id="recentContributions"></div>
             </div>
+            
+            <div class="pending-flats" id="pendingSection" style="display:none;">
+                <h3 style="color: #f44336; margin-bottom: 15px;">⏳ Pending Flats (Sample)</h3>
+                <div id="pendingFlatsList"></div>
+            </div>
+        </div>
+
+        <!-- All Contributions Tab -->
+        <div id="contributions" class="tab-content">
+            <h3>All Contributions (Live Data)</h3>
+            <div class="contribution-list" id="allContributionsList"></div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="summary-section">
+                <h3 style="color: #8B4513; margin-bottom: 15px;">📊 Analytics Summary</h3>
+                <div id="analyticsData"></div>
+            </div>
+        </div>
+
+        <!-- Manage Tab -->
+        <div id="manage" class="tab-content">
+            <h3>Management Tools</h3>
+            <div class="google-links">
+                <a href="https://docs.google.com/forms/d/1FAIpQLSeTa_L_6S10zb0owk8tSM8JgaVWTdGDYXTov7Pl7T1x96Nijw/edit" target="_blank">
+                    📝 Edit Google Form
+                </a>
+                <a href="https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/edit" target="_blank">
+                    📊 View Google Sheet
+                </a>
+            </div>
+            
             <div style="margin-top: 30px; padding: 20px; background: rgba(255,107,53,0.1); border-radius: 15px;">
                 <h4 style="color: #8B4513; margin-bottom: 15px;">Admin Instructions:</h4>
                 <ul style="color: #8B4513; line-height: 1.8;">
-                    <li><strong>Add Contributions:</strong> Add new rows in Google Sheets</li>
-                    <li><strong>Edit Data:</strong> Click any cell in Google Sheets to edit</li>
-                    <li><strong>Delete Entries:</strong> Right-click row → Delete row</li>
-                    <li><strong>Export Data:</strong> File → Download → CSV/Excel</li>
-                    <li><strong>View Changes:</strong> Refresh this page to see updates</li>
+                    <li><strong>View Form Responses:</strong> Click "View Google Sheet" to see all submissions</li>
+                    <li><strong>Edit Form:</strong> Click "Edit Google Form" to modify questions or settings</li>
+                    <li><strong>Add Manual Entries:</strong> Add rows directly in Google Sheet</li>
+                    <li><strong>Export Data:</strong> In Google Sheet: File → Download → CSV/Excel</li>
+                    <li><strong>Delete Entries:</strong> Delete rows in Google Sheet (changes reflect immediately)</li>
+                    <li><strong>View Live Updates:</strong> This page refreshes every 30 seconds automatically</li>
                 </ul>
             </div>
         </div>
@@ -281,15 +357,36 @@
     <button class="refresh-btn" onclick="loadContributions()" title="Refresh Data">🔄</button>
 
     <script>
-        // REPLACE THIS URL WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwLN2RM8rVKwRfKH_TstguOws6WZ5O3gCPksJtAUcMOsP7tm4bm22eGO_knytIn4XWd/exec';
+        // Configuration
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
         
-        // REPLACE THIS WITH YOUR GOOGLE SHEETS URL
-        const SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1mVmqBT67uLt2xGeAynKj1IpnwV2INw-UZJAScc_3Le4/edit';
+        // Pre-existing contributions
+        const existingContributions = [
+            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "Owner", amount: "1111" },
+            { name: "Nitin Martand", flatNumber: "B608", residentType: "Owner", amount: "1100" },
+            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "Owner", amount: "1101" },
+            { name: "Mintu Singh", flatNumber: "B501", residentType: "Owner", amount: "1100" },
+            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "Owner", amount: "1100" },
+            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "Owner", amount: "1101" },
+            { name: "Silky Tripathi", flatNumber: "A506", residentType: "Owner", amount: "1101" },
+            { name: "Ranjeet K", flatNumber: "B102", residentType: "Owner", amount: "1111" },
+            { name: "Vijay Kadam", flatNumber: "B702", residentType: "Owner", amount: "1100" },
+            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "Owner", amount: "1100" },
+            { name: "Ravi Gupta", flatNumber: "B202", residentType: "Owner", amount: "1100" },
+            { name: "Pransshu", flatNumber: "A401", residentType: "Owner", amount: "1100" },
+            { name: "Ashish Kasar", flatNumber: "B505", residentType: "Owner", amount: "1501" },
+            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "Owner", amount: "1100" },
+            { name: "Mojib Patel", flatNumber: "C504", residentType: "Owner", amount: "1100" },
+            { name: "Jayashree Phadtare", flatNumber: "C706", residentType: "Owner", amount: "1101" },
+            { name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
+            { name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
+            { name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
+            { name: "Manohar Jha", flatNumber: "A305", residentType: "Owner", amount: "1500" }
+        ];
 
-        let contributions = [];
+        let allContributions = [];
 
-        function generateFlatNumbers() {
+        function generateAllFlats() {
             const flats = [];
             // Building A: 8 floors, 6 flats each
             for (let floor = 1; floor <= 8; floor++) {
@@ -319,75 +416,170 @@
             event.target.classList.add('active');
             document.getElementById(tabName).classList.add('active');
             
-            if (tabName === 'dashboard') updateDashboard();
-            if (tabName === 'manage') updateManageList();
+            if (tabName === 'contributions') updateAllContributionsList();
+            if (tabName === 'analytics') updateAnalytics();
         }
 
         async function loadContributions() {
             try {
                 document.getElementById('loadingMessage').style.display = 'block';
-                document.getElementById('loadingMessage').textContent = 'Loading live data...';
                 
-                const response = await fetch(SCRIPT_URL);
-                contributions = await response.json();
+                const response = await fetch(SHEET_CSV_URL);
+                const csvText = await response.text();
                 
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const contributions = [];
+                
+                // Add existing contributions first
+                contributions.push(...existingContributions);
+                
+                // Add new contributions from sheet (skip header row)
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                        contributions.push({
+                            name: values[1].replace(/"/g, '').trim(),
+                            flatNumber: values[2].replace(/"/g, '').trim(),
+                            residentType: values[3].replace(/"/g, '').trim(),
+                            amount: values[4].replace(/"/g, '').trim(),
+                            isNew: true
+                        });
+                    }
+                }
+                
+                allContributions = contributions;
                 updateDashboard();
-                updateManageList();
                 document.getElementById('loadingMessage').style.display = 'none';
             } catch (error) {
                 console.error('Error loading contributions:', error);
-                document.getElementById('loadingMessage').textContent = 'Error loading data. Please check your Google Sheets setup.';
+                allContributions = existingContributions;
+                updateDashboard();
+                document.getElementById('loadingMessage').style.display = 'none';
             }
         }
 
         function updateDashboard() {
-            const total = contributions.reduce((sum, c) => sum + (c.ResidentType === 'owner' ? parseInt(c.Amount || 0) : 0), 0);
-            const ownerContributions = contributions.filter(c => c.ResidentType === 'owner' && c.Amount > 0);
-            const avg = ownerContributions.length > 0 ? Math.round(total / ownerContributions.length) : 0;
-            const allFlats = generateFlatNumbers();
-            const contributedFlats = contributions.map(c => c.FlatNumber);
+            let total = 0;
+            let ownerCount = 0;
+            let tenantCount = 0;
+            let ownerContributions = [];
+            
+            allContributions.forEach(contribution => {
+                if (contribution.residentType === 'Owner') {
+                    ownerCount++;
+                    if (contribution.amount) {
+                        total += parseInt(contribution.amount || 0);
+                        ownerContributions.push(parseInt(contribution.amount || 0));
+                    }
+                } else {
+                    tenantCount++;
+                }
+            });
+            
+            const avgAmount = ownerContributions.length > 0 ? Math.round(ownerContributions.reduce((a, b) => a + b, 0) / ownerContributions.length) : 0;
+            const allFlats = generateAllFlats();
+            const contributedFlats = allContributions.map(c => c.flatNumber);
             const pending = allFlats.length - contributedFlats.length;
 
-            document.getElementById('totalContributors').textContent = contributions.length;
+            document.getElementById('totalContributors').textContent = allContributions.length;
             document.getElementById('totalAmount').textContent = `₹${total.toLocaleString()}`;
-            document.getElementById('avgAmount').textContent = `₹${avg.toLocaleString()}`;
+            document.getElementById('avgAmount').textContent = `₹${avgAmount.toLocaleString()}`;
             document.getElementById('pendingFlats').textContent = pending;
+            document.getElementById('ownerCount').textContent = ownerCount;
+            document.getElementById('tenantCount').textContent = tenantCount;
 
-            // Show recent contributions
-            const recent = contributions.slice(-10).reverse();
+            // Show recent contributions (last 5)
+            const recent = allContributions.slice(-5).reverse();
             const recentHTML = recent.map(c => `
                 <div class="contribution-row">
-                    <div>
-                        <strong>${c.Name}</strong> - ${c.FlatNumber}<br>
-                        <small>${c.ResidentType === 'owner' ? `₹${c.Amount}` : 'Tenant'} - ${new Date(c.Timestamp).toLocaleDateString()}</small>
+                    <div class="contribution-info">
+                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
+                        <small>${c.residentType} ${c.isNew ? '🆕' : '✅'}</small>
+                    </div>
+                    <div class="contribution-amount">
+                        ${c.residentType === 'Owner' ? `₹${c.amount}` : 'Tenant'}
                     </div>
                 </div>
             `).join('');
             
-            document.getElementById('recentContributions').innerHTML = `
-                <h3>Recent Contributions (Live)</h3>
-                ${recentHTML}
-            `;
+            document.getElementById('recentContributions').innerHTML = recentHTML;
+            document.getElementById('recentSection').style.display = 'block';
+
+            // Show some pending flats
+            const pendingFlats = allFlats.filter(flat => !contributedFlats.includes(flat)).slice(0, 10);
+            const pendingHTML = pendingFlats.map(flat => `<span style="background: rgba(244,67,54,0.2); padding: 5px 10px; border-radius: 15px; margin: 3px; display: inline-block;">${flat}</span>`).join('');
+            document.getElementById('pendingFlatsList').innerHTML = pendingHTML + (pendingFlats.length < pending ? ` <br><small>... and ${pending - pendingFlats.length} more</small>` : '');
+            document.getElementById('pendingSection').style.display = 'block';
         }
 
-        function updateManageList() {
-            const listHTML = contributions.map((c, index) => `
+        function updateAllContributionsList() {
+            const listHTML = allContributions.map(c => `
                 <div class="contribution-row">
                     <div class="contribution-info">
-                        <strong>${c.Name}</strong> - ${c.FlatNumber}<br>
-                        <small>${c.ResidentType === 'owner' ? `₹${c.Amount}` : 'Tenant'} - ${new Date(c.Timestamp).toLocaleDateString()}</small>
+                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
+                        <small>${c.residentType} ${c.isNew ? '🆕 New' : '✅ Existing'}</small>
+                    </div>
+                    <div class="contribution-amount">
+                        ${c.residentType === 'Owner' ? `₹${c.amount}` : 'Tenant'}
                     </div>
                 </div>
             `).join('');
             
-            document.getElementById('manageList').innerHTML = listHTML || '<p style="text-align: center; color: #8B4513;">No contributions found.</p>';
+            document.getElementById('allContributionsList').innerHTML = listHTML || '<p style="text-align: center; color: #8B4513;">No contributions found.</p>';
+        }
+
+        function updateAnalytics() {
+            const totalFlats = generateAllFlats().length;
+            const contributedFlats = allContributions.length;
+            const participationRate = ((contributedFlats / totalFlats) * 100).toFixed(1);
+            
+            const buildingStats = {
+                A: allContributions.filter(c => c.flatNumber.startsWith('A')).length,
+                B: allContributions.filter(c => c.flatNumber.startsWith('B')).length,
+                C: allContributions.filter(c => c.flatNumber.startsWith('C')).length
+            };
+            
+            const ownerContributions = allContributions.filter(c => c.residentType === 'Owner' && c.amount);
+            const totalOwnerAmount = ownerContributions.reduce((sum, c) => sum + parseInt(c.amount || 0), 0);
+            const avgOwnerContribution = ownerContributions.length > 0 ? Math.round(totalOwnerAmount / ownerContributions.length) : 0;
+            
+            const analyticsHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="stat-card">
+                        <div class="stat-value">${participationRate}%</div>
+                        <div class="stat-label">Participation Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${buildingStats.A}</div>
+                        <div class="stat-label">Building A Contributors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${buildingStats.B}</div>
+                        <div class="stat-label">Building B Contributors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${buildingStats.C}</div>
+                        <div class="stat-label">Building C Contributors</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,107,53,0.1); border-radius: 10px;">
+                    <h4 style="color: #8B4513; margin-bottom: 10px;">📈 Key Insights:</h4>
+                    <ul style="color: #8B4513; line-height: 1.6;">
+                        <li><strong>Total Flats:</strong> ${totalFlats} (A: 48, B: 64, C: 42)</li>
+                        <li><strong>Participation Rate:</strong> ${participationRate}% of all flats have contributed</li>
+                        <li><strong>Average Owner Contribution:</strong> ₹${avgOwnerContribution.toLocaleString()}</li>
+                        <li><strong>Highest Building Participation:</strong> Building ${Object.keys(buildingStats).reduce((a, b) => buildingStats[a] > buildingStats[b] ? a : b)}</li>
+                        <li><strong>Total Amount Collected:</strong> ₹${totalOwnerAmount.toLocaleString()}</li>
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('analyticsData').innerHTML = analyticsHTML;
         }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Set Google Sheets link
-            document.getElementById('sheetsLink').href = SHEETS_URL;
-            
             loadContributions();
             
             // Auto-refresh every 30 seconds
