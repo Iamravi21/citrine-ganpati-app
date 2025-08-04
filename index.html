@@ -512,6 +512,9 @@
                 // Show amount field for both Owner and Tenant
                 contributionGroup.style.display = 'block';
                 contributionAmount.required = true;
+                
+                // Add animation class for smooth appearance
+                contributionGroup.classList.add('contribution-group');
             });
         });
 
@@ -704,12 +707,18 @@
                     // Add to local display immediately
                     addToLocalDisplay(formData);
                     
-                    // Reset form
-                    this.reset();
-                    document.getElementById('contributionGroup').style.display = 'none';
+                    // Reset form but keep contribution field visible
+                    document.getElementById('userName').value = '';
+                    document.getElementById('flatNumber').value = '';
+                    document.getElementById('contributionAmount').value = '';
+                    document.querySelectorAll('input[name="residentType"]').forEach(radio => {
+                        radio.checked = false;
+                    });
                     document.querySelectorAll('.radio-option').forEach(option => {
                         option.classList.remove('selected');
                     });
+                    // Keep contribution field hidden until user selects resident type again
+                    document.getElementById('contributionGroup').style.display = 'none';
                     
                     // Reload data after 5 seconds to get from Google Sheets
                     setTimeout(() => {
