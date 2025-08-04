@@ -392,7 +392,7 @@
             { id: 17, name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
             { id: 18, name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
             { id: 19, name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
-            { id: 20, name: "Manohar Jha", flatNumber: "A305", residentType: "Owner", amount: "1500" }
+            { id: 20, name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
         ];
 
         let editingId = null;
@@ -450,7 +450,7 @@
             let ownerContributions = [];
             
             contributions.forEach(contribution => {
-                if (contribution.residentType === 'Owner' && contribution.amount) {
+                if (contribution.amount && contribution.amount !== '0') {
                     total += parseInt(contribution.amount || 0);
                     ownerContributions.push(parseInt(contribution.amount || 0));
                 }
@@ -497,7 +497,7 @@
                         <td>${contribution.name}</td>
                         <td>${contribution.flatNumber}</td>
                         <td>${contribution.residentType}</td>
-                        <td>₹${contribution.amount}</td>
+                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : 'No Amount'}</td>
                         <td class="actions">
                             <button class="btn btn-primary" onclick="editContribution(${contribution.id})">Edit</button>
                             <button class="btn btn-danger" onclick="deleteContribution(${contribution.id})">Delete</button>
