@@ -588,12 +588,12 @@
                 // Add new contributions from sheet (skip header row)
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
-                    if (values.length >= 4 && values[1].trim()) {
+                    if (values.length >= 6 && values[2] && values[2].trim()) {
                         contributions.push({
-                            name: values[1].replace(/"/g, ''),
-                            flatNumber: values[2].replace(/"/g, ''),
-                            residentType: values[3].replace(/"/g, ''),
-                            amount: values[4].replace(/"/g, ''),
+                            name: values[2].replace(/"/g, '').replace(/\r/g, ''),
+                            flatNumber: values[3].replace(/"/g, '').replace(/\r/g, ''),
+                            residentType: values[4].replace(/"/g, '').replace(/\r/g, ''),
+                            amount: values[5].replace(/"/g, '').replace(/\r/g, ''),
                             isNew: true
                         });
                     }
