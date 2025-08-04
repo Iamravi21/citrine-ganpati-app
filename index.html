@@ -509,14 +509,9 @@
                 const contributionGroup = document.getElementById('contributionGroup');
                 const contributionAmount = document.getElementById('contributionAmount');
                 
-                if (this.value === 'Owner') {
-                    contributionGroup.style.display = 'block';
-                    contributionAmount.required = true;
-                } else {
-                    contributionGroup.style.display = 'none';
-                    contributionAmount.required = false;
-                    contributionAmount.value = '';
-                }
+                // Show amount field for both Owner and Tenant
+                contributionGroup.style.display = 'block';
+                contributionAmount.required = true;
             });
         });
 
@@ -698,7 +693,7 @@
                     name: name,
                     flatNumber: flatNumber,
                     residentType: residentType,
-                    amount: residentType === 'Owner' ? amount : '0'
+                    amount: amount
                 };
                 
                 const success = await submitToGoogleForms(formData);
