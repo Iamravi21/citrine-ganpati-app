@@ -241,8 +241,8 @@
                     </select>
                 </div>
                 <div class="form-group" id="amountGroup">
-                    <label class="form-label">Amount (₹)</label>
-                    <input type="number" class="form-input" id="addAmount" min="1" placeholder="Enter amount (leave empty for tenant)">
+                    <label class="form-label">Amount (₹) *</label>
+                    <input type="number" class="form-input" id="addAmount" min="1" placeholder="Enter contribution amount" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Contribution</button>
             </form>
@@ -459,19 +459,14 @@
             }
         }
 
-        // Event Listeners
+        // Event Listeners - Amount field always visible and required
         document.getElementById('addType').addEventListener('change', function() {
             const amountGroup = document.getElementById('amountGroup');
             const amountInput = document.getElementById('addAmount');
             
-            if (this.value === 'owner') {
-                amountGroup.style.display = 'block';
-                amountInput.required = true;
-            } else {
-                amountGroup.style.display = 'none';
-                amountInput.required = false;
-                amountInput.value = '';
-            }
+            // Always show amount field and make it required
+            amountGroup.style.display = 'block';
+            amountInput.required = true;
         });
 
         // Show amount field by default when page loads
@@ -503,7 +498,7 @@
                 name,
                 flatNumber,
                 residentType,
-                amount: residentType === 'owner' ? parseInt(amount) : 0,
+                amount: parseInt(amount),
                 timestamp: new Date().toISOString()
             };
             
