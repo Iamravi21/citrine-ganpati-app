@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
@@ -40,7 +40,6 @@
             gap: 10px;
             margin-bottom: 20px;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -71,6 +70,80 @@
             display: block;
         }
 
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            color: #8B4513;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #D4AF37;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #FF6B35, #F7931E);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .contribution-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .contribution-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(255,107,53,0.1);
+            border-radius: 10px;
+            border-left: 4px solid #FF6B35;
+        }
+
+        .contribution-info {
+            flex: 1;
+        }
+
+        .contribution-actions {
+            display: flex;
+            gap: 10px;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -98,181 +171,32 @@
             margin-top: 5px;
         }
 
-        .add-form {
-            background: rgba(255,215,0,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border: 2px solid #FFD700;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-label {
-            font-weight: bold;
-            color: #8B4513;
-            margin-bottom: 5px;
-        }
-
-        .form-input, .form-select {
-            padding: 10px;
-            border: 2px solid #D4AF37;
-            border-radius: 10px;
-            font-size: 14px;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 2px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(45deg, #FF6B35, #F7931E);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(45deg, #dc3545, #c82333);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(45deg, #ffc107, #e0a800);
-            color: #212529;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .contribution-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .contribution-table th,
-        .contribution-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .contribution-table th {
-            background: rgba(255,107,53,0.2);
-            color: #8B4513;
-            font-weight: bold;
-        }
-
-        .contribution-table tr:hover {
-            background: rgba(255,107,53,0.1);
-        }
-
-        .edit-row {
-            background: rgba(255,215,0,0.2) !important;
-        }
-
-        .edit-input {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #D4AF37;
-            border-radius: 5px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background: white;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 15px;
-            width: 80%;
-            max-width: 500px;
+        .export-section {
             text-align: center;
+            margin-top: 30px;
         }
 
-        .success-message, .error-message {
-            display: none;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .contribution-table {
-                font-size: 12px;
-            }
-            .actions {
-                flex-direction: column;
-            }
+        @media (max-width: 600px) {
+            .tabs { flex-direction: column; }
+            .contribution-row { flex-direction: column; gap: 10px; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="admin-title">🔧 Admin Panel - Live Data</div>
-            <div>Citrine Housing Society - Ganpati Festival</div>
-            <div style="color: #4CAF50; font-weight: bold; margin-top: 10px;">🔴 LIVE - Connected to Google Sheets</div>
+            <div class="admin-title">🔧 Admin Panel - Ganpati Festival</div>
+            <div>Citrine Housing Society</div>
         </div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
-            <button class="tab-btn" onclick="showTab('manage')">✏️ Manage Records</button>
-            <button class="tab-btn" onclick="showTab('add')">➕ Add New</button>
+            <button class="tab-btn" onclick="showTab('add')">➕ Add Contribution</button>
+            <button class="tab-btn" onclick="showTab('manage')">✏️ Manage Data</button>
             <button class="tab-btn" onclick="showTab('expenses')">💰 Expenses</button>
             <button class="tab-btn" onclick="showTab('financial')">📈 Financial</button>
+            <button class="tab-btn" onclick="showTab('export')">📤 Export</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -295,138 +219,71 @@
                     <div class="stat-label">Pending Flats</div>
                 </div>
             </div>
-            
-            <div style="background: rgba(76,175,80,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #4CAF50;">
-                <h4 style="color: #4CAF50; margin-bottom: 10px;">📊 Live Data Status</h4>
-                <p style="color: #8B4513;">This admin panel shows the same data as the user app. New submissions appear automatically every 30 seconds.</p>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-                <button class="btn btn-success" onclick="exportToCSV()">
-                    📊 Export to CSV
-                </button>
-                <button class="btn btn-primary" onclick="refreshData()">
-                    🔄 Refresh Data
-                </button>
-            </div>
+            <div id="recentContributions"></div>
         </div>
 
-        <!-- Manage Records Tab -->
-        <div id="manage" class="tab-content">
-            <h3>Manage All Records</h3>
-            
-            <div style="background: rgba(255,193,7,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #FFC107;">
-                <h4 style="color: #8B4513; margin-bottom: 10px;">⚠️ Important Notice</h4>
-                <p style="color: #8B4513; font-size: 14px; line-height: 1.5;">
-                    <strong>Editing:</strong> Changes to existing records are local only and will be lost on refresh.<br>
-                    <strong>Deleting:</strong> Only removes from local view, not from Google Sheets.<br>
-                    <strong>Adding:</strong> New entries are saved to Google Sheets and will sync with the public app.
-                </p>
-            </div>
-            
-            <div class="success-message" id="successMessage"></div>
-            <div class="error-message" id="errorMessage"></div>
-            
-            <table class="contribution-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Flat</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="contributionsTableBody">
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Add New Tab -->
+        <!-- Add Contribution Tab -->
         <div id="add" class="tab-content">
             <h3>Add New Contribution</h3>
-            <div class="add-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-input" id="newName" placeholder="Enter name">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Flat Number</label>
-                        <select class="form-select" id="newFlat">
-                            <option value="">Select Flat</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Type</label>
-                        <select class="form-select" id="newType">
-                            <option value="">Select Type</option>
-                            <option value="Owner">Owner</option>
-                            <option value="Tenant">Tenant</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Amount</label>
-                        <input type="number" class="form-input" id="newAmount" placeholder="Enter amount">
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-success" onclick="addContribution()">Add</button>
-                    </div>
+            <form id="addForm">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="addName" required>
                 </div>
-            </div>
-            <div class="success-message" id="addSuccessMessage"></div>
-            <div class="error-message" id="addErrorMessage"></div>
+                <div class="form-group">
+                    <label class="form-label">Flat Number</label>
+                    <select class="form-select" id="addFlat" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Resident Type</label>
+                    <select class="form-select" id="addType" required>
+                        <option value="">Select Type</option>
+                        <option value="owner">Owner</option>
+                        <option value="tenant">Tenant</option>
+                    </select>
+                </div>
+                <div class="form-group" id="amountGroup">
+                    <label class="form-label">Amount (₹) *</label>
+                    <input type="number" class="form-input" id="addAmount" min="1" placeholder="Enter contribution amount" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Contribution</button>
+            </form>
+        </div>
+
+        <!-- Manage Data Tab -->
+        <div id="manage" class="tab-content">
+            <h3>Manage Contributions</h3>
+            <div class="contribution-list" id="manageList"></div>
         </div>
 
         <!-- Expenses Tab -->
         <div id="expenses" class="tab-content">
             <h3>Expense Tracker</h3>
-            <div class="add-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-input" id="expenseDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Item Purchased</label>
-                        <input type="text" class="form-input" id="expenseItem" placeholder="Enter item name" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Price (₹)</label>
-                        <input type="number" class="form-input" id="expensePrice" placeholder="Enter price" min="1" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Bill (Optional)</label>
-                        <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-success" onclick="addExpense()">Add Expense</button>
-                    </div>
+            <form id="expenseForm">
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input" id="expenseDate" required>
                 </div>
-            </div>
-            <div class="success-message" id="expenseSuccessMessage"></div>
-            <div class="error-message" id="expenseErrorMessage"></div>
-            
-            <table class="contribution-table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Item</th>
-                        <th>Price</th>
-                        <th>Bill</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="expensesTableBody">
-                </tbody>
-            </table>
+                <div class="form-group">
+                    <label class="form-label">Item Purchased</label>
+                    <input type="text" class="form-input" id="expenseItem" placeholder="Enter item name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price (₹)</label>
+                    <input type="number" class="form-input" id="expensePrice" placeholder="Enter price" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bill (Optional)</label>
+                    <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
+                </div>
+                <button type="submit" class="btn btn-success">Add Expense</button>
+            </form>
+            <div class="contribution-list" id="expensesList"></div>
         </div>
 
         <!-- Financial Dashboard Tab -->
         <div id="financial" class="tab-content">
             <h3>Financial Dashboard</h3>
-            
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-value" id="totalContributions">₹0</div>
@@ -445,149 +302,52 @@
                     <div class="stat-label">Total Items Purchased</div>
                 </div>
             </div>
-            
             <div style="background: rgba(76,175,80,0.1); padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 4px solid #4CAF50;">
                 <h4 style="color: #4CAF50; margin-bottom: 15px;">📈 Financial Summary</h4>
                 <div id="financialSummary" style="color: #8B4513; line-height: 1.6;"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal">
-        <div class="modal-content">
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete this contribution?</p>
-            <p><strong id="deleteDetails"></strong></p>
-            <br>
-            <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
-            <button class="btn btn-primary" onclick="closeModal()">Cancel</button>
+        <!-- Export Tab -->
+        <div id="export" class="tab-content">
+            <h3>Export Data</h3>
+            <div class="export-section">
+                <button class="btn btn-success" onclick="exportToCSV()">📊 Export to CSV</button>
+                <button class="btn btn-primary" onclick="exportToJSON()">📄 Export to JSON</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+            </div>
+            <div style="margin-top: 30px;">
+                <h4>Import Data</h4>
+                <input type="file" id="importFile" accept=".json,.csv" style="margin: 10px 0;">
+                <button class="btn btn-primary" onclick="importData()">📥 Import Data</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Configuration - Same as live app
-        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
-        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeTa_L_6S10zb0owk8tSM8JgaVWTdGDYXTov7Pl7T1x96Nijw/formResponse';
-        
-        // Expense tracking URLs
-        const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1fxnYMwFKLcqG1TrHIGtCGREi8AfAR_Yag2FOgp9fJAM/export?format=csv&gid=97680792';
-        const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4sHMuSnfba0qzBavDNvt0dhP_ZDW2A9vZrvAMVc8FGu7DJg/formResponse';
-        
-        // Form field IDs from pre-filled URL
-        const FIELD_IDS = {
-            name: 'entry.1950429096',
-            flatNumber: 'entry.1176797061', 
-            residentType: 'entry.1394194772',
-            amount: 'entry.532603436'
-        };
-        
-        // Expense form field IDs
-        const EXPENSE_FIELD_IDS = {
-            date: 'entry.412405448',
-            item: 'entry.2110416130',
-            price: 'entry.2118045608'
-        };
-        
-        // Pre-existing contributions (fallback)
-        const existingContributions = [
-            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "Owner", amount: "1111" },
-            { name: "Nitin Martand", flatNumber: "B608", residentType: "Owner", amount: "1100" },
-            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "Owner", amount: "1101" },
-            { name: "Mintu Singh", flatNumber: "B501", residentType: "Owner", amount: "1100" },
-            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "Owner", amount: "1100" },
-            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "Owner", amount: "1101" },
-            { name: "Silky Tripathi", flatNumber: "A506", residentType: "Owner", amount: "1101" },
-            { name: "Ranjeet K", flatNumber: "B102", residentType: "Owner", amount: "1111" },
-            { name: "Vijay Kadam", flatNumber: "B702", residentType: "Owner", amount: "1100" },
-            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "Owner", amount: "1100" },
-            { name: "Ravi Gupta", flatNumber: "B202", residentType: "Owner", amount: "1100" },
-            { name: "Pransshu", flatNumber: "A401", residentType: "Owner", amount: "1100" },
-            { name: "Ashish Kasar", flatNumber: "B505", residentType: "Owner", amount: "1501" },
-            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "Owner", amount: "1100" },
-            { name: "Mojib Patel", flatNumber: "C504", residentType: "Owner", amount: "1100" },
-            { name: "Jayashree Phadtare", flatNumber: "C706", residentType: "Owner", amount: "1101" },
-            { name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
-            { name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
-            { name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
-            { name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
-        ];
-
         let contributions = [];
         let expenses = [];
-        let editingId = null;
-        let deleteId = null;
-        let nextId = 21;
         let nextExpenseId = 1;
 
-        // Load contributions from Google Sheets
-        async function loadContributions() {
-            try {
-                // Add cache-busting parameter to force fresh data
-                const cacheBuster = new Date().getTime();
-                const urlWithCacheBuster = `${SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
-                
-                const response = await fetch(urlWithCacheBuster, {
-                    cache: 'no-cache',
-                    headers: {
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                const csvText = await response.text();
-                
-                // Parse CSV
-                const lines = csvText.trim().split('\n');
-                const loadedContributions = [];
-                
-                // Add existing contributions first
-                existingContributions.forEach((contrib, index) => {
-                    loadedContributions.push({
-                        id: index + 1,
-                        ...contrib
-                    });
-                });
-                
-                // Add new contributions from sheet (skip header row)
-                let currentId = existingContributions.length + 1;
-                for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',');
-                    if (values.length >= 6 && values[2] && values[2].trim()) {
-                        const newEntry = {
-                            id: currentId++,
-                            name: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            flatNumber: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            residentType: values[4].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            amount: values[5].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            isNew: true
-                        };
-                        
-                        // Check if this entry already exists in existing contributions
-                        const isDuplicate = existingContributions.some(existing => 
-                            existing.flatNumber === newEntry.flatNumber
-                        );
-                        
-                        if (!isDuplicate) {
-                            loadedContributions.push(newEntry);
-                        }
-                    }
-                }
-                
-                contributions = loadedContributions;
-                nextId = currentId;
-                return true;
-            } catch (error) {
-                console.error('Error loading contributions:', error);
-                // Fallback to existing contributions only
-                contributions = existingContributions.map((contrib, index) => ({
-                    id: index + 1,
-                    ...contrib
-                }));
-                nextId = contributions.length + 1;
-                return false;
-            }
-        }
+        // Initialize with existing data
+        const existingContributions = [
+            { name: "Hemant Chaudhari", flatNumber: "B303", residentType: "owner", amount: 1111, timestamp: "2024-01-01T00:00:00.000Z" },
+            { name: "Nitin Martand", flatNumber: "B608", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:01:00.000Z" },
+            { name: "Swapnali Nikam", flatNumber: "A703", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:02:00.000Z" },
+            { name: "Mintu Singh", flatNumber: "B501", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:03:00.000Z" },
+            { name: "Sanjay Mishra", flatNumber: "B302", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:04:00.000Z" },
+            { name: "Swati Vaibhav Vaste", flatNumber: "A804", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:05:00.000Z" },
+            { name: "Silky Tripathi", flatNumber: "A506", residentType: "owner", amount: 1101, timestamp: "2024-01-01T00:06:00.000Z" },
+            { name: "Ranjeet K", flatNumber: "B102", residentType: "owner", amount: 1111, timestamp: "2024-01-01T00:07:00.000Z" },
+            { name: "Vijay Kadam", flatNumber: "B702", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:08:00.000Z" },
+            { name: "Satish A. Tanpure", flatNumber: "A106", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:09:00.000Z" },
+            { name: "Ravi Gupta", flatNumber: "B202", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:10:00.000Z" },
+            { name: "Pransshu", flatNumber: "A401", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:11:00.000Z" },
+            { name: "Ashish Kasar", flatNumber: "B505", residentType: "owner", amount: 1501, timestamp: "2024-01-01T00:12:00.000Z" },
+            { name: "Gajendra Rathore", flatNumber: "B803", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:13:00.000Z" },
+            { name: "Mojib Patel", flatNumber: "C504", residentType: "owner", amount: 1100, timestamp: "2024-01-01T00:14:00.000Z" }
+        ];
 
-        // Generate flat numbers
         function generateFlatNumbers() {
             const flats = [];
             // Building A: 8 floors, 6 flats each
@@ -613,7 +373,8 @@
 
         function populateFlatDropdown() {
             const flats = generateFlatNumbers();
-            const select = document.getElementById('newFlat');
+            const select = document.getElementById('addFlat');
+            select.innerHTML = '<option value="">Select Flat</option>';
             flats.forEach(flat => {
                 const option = document.createElement('option');
                 option.value = flat;
@@ -630,575 +391,253 @@
             document.getElementById(tabName).classList.add('active');
             
             if (tabName === 'dashboard') updateDashboard();
-            if (tabName === 'manage') updateTable();
-            if (tabName === 'expenses') updateExpensesTable();
+            if (tabName === 'manage') updateManageList();
+            if (tabName === 'expenses') updateExpensesList();
             if (tabName === 'financial') updateFinancialDashboard();
         }
 
+        function loadData() {
+            const stored = localStorage.getItem('ganpatiContributions');
+            contributions = stored ? JSON.parse(stored) : [...existingContributions];
+            saveData();
+            
+            const storedExpenses = localStorage.getItem('ganpatiExpenses');
+            expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+            nextExpenseId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+        }
+
+        function saveData() {
+            localStorage.setItem('ganpatiContributions', JSON.stringify(contributions));
+            localStorage.setItem('ganpatiExpenses', JSON.stringify(expenses));
+        }
+
         function updateDashboard() {
-            let total = 0;
-            let ownerContributions = [];
-            
-            contributions.forEach(contribution => {
-                if (contribution.amount && contribution.amount !== '0') {
-                    total += parseInt(contribution.amount || 0);
-                    ownerContributions.push(parseInt(contribution.amount || 0));
-                }
-            });
-            
-            const avgAmount = ownerContributions.length > 0 ? Math.round(total / ownerContributions.length) : 0;
+            const total = contributions.reduce((sum, c) => sum + (c.residentType === 'owner' ? parseInt(c.amount || 0) : 0), 0);
+            const ownerContributions = contributions.filter(c => c.residentType === 'owner' && c.amount > 0);
+            const avg = ownerContributions.length > 0 ? Math.round(total / ownerContributions.length) : 0;
             const allFlats = generateFlatNumbers();
             const contributedFlats = contributions.map(c => c.flatNumber);
             const pending = allFlats.length - contributedFlats.length;
 
             document.getElementById('totalContributors').textContent = contributions.length;
             document.getElementById('totalAmount').textContent = `₹${total.toLocaleString()}`;
-            document.getElementById('avgAmount').textContent = `₹${avgAmount.toLocaleString()}`;
+            document.getElementById('avgAmount').textContent = `₹${avg.toLocaleString()}`;
             document.getElementById('pendingFlats').textContent = pending;
+
+            // Show recent contributions
+            const recent = contributions.slice(-5).reverse();
+            const recentHTML = recent.map(c => `
+                <div class="contribution-row">
+                    <div>
+                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
+                        <small>${c.residentType === 'owner' ? `₹${c.amount}` : 'Tenant'}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('recentContributions').innerHTML = `
+                <h3>Recent Contributions</h3>
+                ${recentHTML}
+            `;
         }
 
-        function updateTable() {
-            const tbody = document.getElementById('contributionsTableBody');
-            tbody.innerHTML = '';
+        function updateManageList() {
+            const listHTML = contributions.map((c, index) => `
+                <div class="contribution-row">
+                    <div class="contribution-info">
+                        <strong>${c.name}</strong> - ${c.flatNumber}<br>
+                        <small>${c.residentType === 'owner' ? `₹${c.amount}` : 'Tenant'}</small>
+                    </div>
+                    <div class="contribution-actions">
+                        <button class="btn btn-primary" onclick="editContribution(${index})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteContribution(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
             
-            contributions.forEach(contribution => {
-                const row = document.createElement('tr');
-                row.id = `row-${contribution.id}`;
-                
-                if (editingId === contribution.id) {
-                    row.className = 'edit-row';
-                    row.innerHTML = `
-                        <td><input type="text" class="edit-input" value="${contribution.name}" id="edit-name-${contribution.id}"></td>
-                        <td><input type="text" class="edit-input" value="${contribution.flatNumber}" id="edit-flat-${contribution.id}"></td>
-                        <td>
-                            <select class="edit-input" id="edit-type-${contribution.id}">
-                                <option value="Owner" ${contribution.residentType === 'Owner' ? 'selected' : ''}>Owner</option>
-                                <option value="Tenant" ${contribution.residentType === 'Tenant' ? 'selected' : ''}>Tenant</option>
-                            </select>
-                        </td>
-                        <td><input type="number" class="edit-input" value="${contribution.amount}" id="edit-amount-${contribution.id}"></td>
-                        <td class="actions">
-                            <button class="btn btn-success" onclick="saveEdit(${contribution.id})">Save</button>
-                            <button class="btn btn-warning" onclick="cancelEdit()">Cancel</button>
-                        </td>
-                    `;
-                } else {
-                    row.innerHTML = `
-                        <td>${contribution.name}</td>
-                        <td>${contribution.flatNumber}</td>
-                        <td>${contribution.residentType}</td>
-                        <td>${contribution.amount && contribution.amount !== '0' ? `₹${contribution.amount}` : (contribution.residentType === 'Tenant' ? 'Tenant' : '₹0')} ${contribution.isNew ? '🆕' : ''}</td>
-                        <td class="actions">
-                            <button class="btn btn-primary" onclick="editContribution(${contribution.id})">Edit</button>
-                            <button class="btn btn-danger" onclick="deleteContribution(${contribution.id})">Delete</button>
-                        </td>
-                    `;
+            document.getElementById('manageList').innerHTML = listHTML;
+        }
+
+        function editContribution(index) {
+            const c = contributions[index];
+            const newName = prompt('Edit Name:', c.name);
+            const newAmount = c.residentType === 'owner' ? prompt('Edit Amount:', c.amount) : null;
+            
+            if (newName) {
+                contributions[index].name = newName;
+                if (newAmount && c.residentType === 'owner') {
+                    contributions[index].amount = parseInt(newAmount);
                 }
-                
-                tbody.appendChild(row);
-            });
-        }
-
-        function editContribution(id) {
-            editingId = id;
-            updateTable();
-        }
-
-        function saveEdit(id) {
-            const name = document.getElementById(`edit-name-${id}`).value;
-            const flatNumber = document.getElementById(`edit-flat-${id}`).value;
-            const residentType = document.getElementById(`edit-type-${id}`).value;
-            const amount = document.getElementById(`edit-amount-${id}`).value;
-            
-            if (!name || !flatNumber || !residentType || !amount) {
-                showMessage('Please fill all fields', true, 'manage');
-                return;
-            }
-            
-            // Check for duplicate flat (excluding current record)
-            const duplicate = contributions.find(c => c.flatNumber === flatNumber && c.id !== id);
-            if (duplicate) {
-                showMessage('This flat number is already taken!', true, 'manage');
-                return;
-            }
-            
-            const contribution = contributions.find(c => c.id === id);
-            contribution.name = name;
-            contribution.flatNumber = flatNumber;
-            contribution.residentType = residentType;
-            contribution.amount = amount;
-            
-            editingId = null;
-            updateTable();
-            updateDashboard();
-            
-            // Show warning about Google Sheets
-            if (contribution.isNew) {
-                showMessage('⚠️ Record updated locally only. Google Sheets entries cannot be edited directly. Changes will be lost on next refresh.', true, 'manage');
-            } else {
-                showMessage('Record updated locally only. Changes will be lost on next refresh.', true, 'manage');
-            }
-        }
-
-        function cancelEdit() {
-            editingId = null;
-            updateTable();
-        }
-
-        function deleteContribution(id) {
-            const contribution = contributions.find(c => c.id === id);
-            deleteId = id;
-            document.getElementById('deleteDetails').textContent = `${contribution.name} - ${contribution.flatNumber}`;
-            document.getElementById('deleteModal').style.display = 'block';
-        }
-
-        function confirmDelete() {
-            contributions = contributions.filter(c => c.id !== deleteId);
-            closeModal();
-            updateTable();
-            updateDashboard();
-            showMessage('Record deleted successfully!', false, 'manage');
-        }
-
-        function closeModal() {
-            document.getElementById('deleteModal').style.display = 'none';
-            deleteId = null;
-        }
-
-        // Submit to Google Forms
-        async function submitToGoogleForms(formData) {
-            const submitURL = FORM_URL;
-            const params = new URLSearchParams();
-            
-            params.append(FIELD_IDS.name, formData.name);
-            params.append(FIELD_IDS.flatNumber, formData.flatNumber);
-            params.append(FIELD_IDS.residentType, formData.residentType);
-            params.append(FIELD_IDS.amount, formData.amount);
-            
-            try {
-                await fetch(submitURL, {
-                    method: 'POST',
-                    body: params,
-                    mode: 'no-cors'
-                });
-                return true;
-            } catch (error) {
-                console.error('Error submitting to Google Forms:', error);
-                return false;
-            }
-        }
-
-        async function addContribution() {
-            const name = document.getElementById('newName').value;
-            const flatNumber = document.getElementById('newFlat').value;
-            const residentType = document.getElementById('newType').value;
-            const amount = document.getElementById('newAmount').value;
-            
-            if (!name || !flatNumber || !residentType || !amount) {
-                showMessage('Please fill all fields', true, 'add');
-                return;
-            }
-            
-            // Check for duplicate flat
-            const duplicate = contributions.find(c => c.flatNumber === flatNumber);
-            if (duplicate) {
-                showMessage('This flat has already contributed!', true, 'add');
-                return;
-            }
-            
-            // Submit to Google Forms
-            const formData = {
-                name: name,
-                flatNumber: flatNumber,
-                residentType: residentType,
-                amount: amount
-            };
-            
-            const success = await submitToGoogleForms(formData);
-            
-            if (success) {
-                // Add to local display immediately
-                const newContribution = {
-                    id: nextId++,
-                    name: name,
-                    flatNumber: flatNumber,
-                    residentType: residentType,
-                    amount: amount,
-                    isNew: true
-                };
-                
-                contributions.push(newContribution);
-                
-                // Clear form
-                document.getElementById('newName').value = '';
-                document.getElementById('newFlat').value = '';
-                document.getElementById('newType').value = '';
-                document.getElementById('newAmount').value = '';
-                
+                saveData();
+                updateManageList();
                 updateDashboard();
-                updateTable();
-                showMessage('New contribution added and saved to Google Sheets!', false, 'add');
-                
-                // Refresh data after a few seconds
-                setTimeout(() => {
-                    loadContributions();
-                    updateDashboard();
-                    updateTable();
-                }, 3000);
-            } else {
-                showMessage('Error saving to Google Sheets. Please try again.', true, 'add');
             }
         }
 
-        function showMessage(message, isError, section) {
-            let successId, errorId;
-            
-            switch(section) {
-                case 'add':
-                    successId = 'addSuccessMessage';
-                    errorId = 'addErrorMessage';
-                    break;
-                case 'expenses':
-                    successId = 'expenseSuccessMessage';
-                    errorId = 'expenseErrorMessage';
-                    break;
-                case 'dashboard':
-                    successId = 'dashboardSuccessMessage';
-                    errorId = 'dashboardErrorMessage';
-                    break;
-                default:
-                    successId = 'successMessage';
-                    errorId = 'errorMessage';
-            }
-            
-            // Create dashboard messages if they don't exist
-            if (section === 'dashboard') {
-                if (!document.getElementById('dashboardSuccessMessage')) {
-                    const successDiv = document.createElement('div');
-                    successDiv.id = 'dashboardSuccessMessage';
-                    successDiv.className = 'success-message';
-                    document.getElementById('dashboard').appendChild(successDiv);
-                }
-                if (!document.getElementById('dashboardErrorMessage')) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.id = 'dashboardErrorMessage';
-                    errorDiv.className = 'error-message';
-                    document.getElementById('dashboard').appendChild(errorDiv);
-                }
-            }
-            
-            if (isError) {
-                document.getElementById(errorId).textContent = message;
-                document.getElementById(errorId).style.display = 'block';
-                if (document.getElementById(successId)) document.getElementById(successId).style.display = 'none';
-                setTimeout(() => {
-                    document.getElementById(errorId).style.display = 'none';
-                }, 5000);
-            } else {
-                document.getElementById(successId).textContent = message;
-                document.getElementById(successId).style.display = 'block';
-                if (document.getElementById(errorId)) document.getElementById(errorId).style.display = 'none';
-                setTimeout(() => {
-                    document.getElementById(successId).style.display = 'none';
-                }, 3000);
+        function deleteContribution(index) {
+            if (confirm('Are you sure you want to delete this contribution?')) {
+                contributions.splice(index, 1);
+                saveData();
+                updateManageList();
+                updateDashboard();
             }
         }
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', async function() {
+        function exportToCSV() {
+            const csv = [
+                ['Name', 'Flat Number', 'Type', 'Amount', 'Date'],
+                ...contributions.map(c => [
+                    c.name,
+                    c.flatNumber,
+                    c.residentType,
+                    c.residentType === 'owner' ? c.amount : 'N/A',
+                    new Date(c.timestamp).toLocaleDateString()
+                ])
+            ].map(row => row.join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ganpati_contributions.csv';
+            a.click();
+        }
+
+        function exportToJSON() {
+            const json = JSON.stringify(contributions, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ganpati_contributions.json';
+            a.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL data? This cannot be undone!')) {
+                contributions = [];
+                saveData();
+                updateDashboard();
+                updateManageList();
+            }
+        }
+
+        // Event Listeners - Amount field always visible and required
+        document.getElementById('addType').addEventListener('change', function() {
+            const amountGroup = document.getElementById('amountGroup');
+            const amountInput = document.getElementById('addAmount');
+            
+            // Always show amount field and make it required
+            amountGroup.style.display = 'block';
+            amountInput.required = true;
+        });
+
+        // Show amount field by default when page loads
+        document.addEventListener('DOMContentLoaded', function() {
             populateFlatDropdown();
-            
-            // Load data from Google Sheets and expenses
-            const loaded = await loadContributions();
-            if (!loaded) {
-                showMessage('⚠️ Could not load live data. Showing cached data only.', true, 'dashboard');
-            }
-            
-            const expensesLoaded = await loadExpenses();
-            if (!expensesLoaded) {
-                showMessage('⚠️ Expense Google Sheets not configured. Using local storage.', true, 'expenses');
-            }
-            
+            loadData();
             updateDashboard();
-            updateTable();
-            updateExpensesTable();
             updateFinancialDashboard();
+            
+            // Show amount field by default
+            document.getElementById('amountGroup').style.display = 'block';
+            document.getElementById('addAmount').required = true;
             
             // Set today's date as default for expense form
             document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
-            
-            // Auto-refresh every 15 seconds to match public app
-            setInterval(async () => {
-                await loadContributions();
-                await loadExpenses();
-                updateDashboard();
-                updateFinancialDashboard();
-                const activeTab = document.querySelector('.tab-content.active').id;
-                if (activeTab === 'manage') updateTable();
-                if (activeTab === 'expenses') updateExpensesTable();
-                if (activeTab === 'financial') updateFinancialDashboard();
-            }, 15000);
         });
 
-        // Refresh data function
-        async function refreshData() {
-            const loaded = await loadContributions();
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('addName').value;
+            const flatNumber = document.getElementById('addFlat').value;
+            const residentType = document.getElementById('addType').value;
+            const amount = document.getElementById('addAmount').value;
+            
+            // Check for duplicate
+            if (contributions.find(c => c.flatNumber === flatNumber)) {
+                alert('This flat has already contributed!');
+                return;
+            }
+            
+            const contribution = {
+                name,
+                flatNumber,
+                residentType,
+                amount: parseInt(amount),
+                timestamp: new Date().toISOString()
+            };
+            
+            contributions.push(contribution);
+            saveData();
+            
+            // Reset form
+            this.reset();
+            document.getElementById('amountGroup').style.display = 'none';
+            
+            alert('Contribution added successfully!');
             updateDashboard();
-            updateTable();
-            
-            if (loaded) {
-                showMessage('✅ Data refreshed successfully!', false, 'dashboard');
-            } else {
-                showMessage('⚠️ Could not refresh live data. Showing cached data.', true, 'dashboard');
-            }
-        }
+        });
 
-        // Export to CSV function
-        function exportToCSV() {
-            const headers = ['Name', 'Flat Number', 'Resident Type', 'Amount', 'Date Added'];
-            const csvContent = [headers.join(',')];
+        // Expense form handler
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            contributions.forEach(contribution => {
-                const row = [
-                    `"${contribution.name}"`,
-                    `"${contribution.flatNumber}"`,
-                    `"${contribution.residentType}"`,
-                    `"${contribution.amount}"`,
-                    `"${new Date().toLocaleDateString()}"`
-                ];
-                csvContent.push(row.join(','));
-            });
-            
-            const csvString = csvContent.join('\n');
-            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `Ganpati_Contributions_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            
-            showMessage('CSV file exported successfully!', false, 'dashboard');
-        }
-
-        // Load expenses from Google Sheets
-        async function loadExpenses() {
-            try {
-                
-                const cacheBuster = new Date().getTime();
-                const urlWithCacheBuster = `${EXPENSE_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
-                
-                const response = await fetch(urlWithCacheBuster, {
-                    cache: 'no-cache',
-                    headers: {
-                        'Cache-Control': 'no-cache'
-                    }
-                });
-                const csvText = await response.text();
-                
-                // Parse CSV
-                const lines = csvText.trim().split('\n');
-                const loadedExpenses = [];
-                
-                // Parse expenses from sheet (skip header row)
-                for (let i = 1; i < lines.length; i++) {
-                    const values = lines[i].split(',');
-                    if (values.length >= 3 && values[1] && values[1].trim()) {
-                        loadedExpenses.push({
-                            id: i,
-                            date: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            item: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
-                            price: parseInt(values[3].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
-                            billName: null, // Bills stored locally only
-                            billData: null,
-                            isLive: true
-                        });
-                    }
-                }
-                
-                // Merge with local bills data
-                const localExpenses = JSON.parse(localStorage.getItem('ganpatiExpenses') || '[]');
-                loadedExpenses.forEach(expense => {
-                    const localMatch = localExpenses.find(local => 
-                        local.date === expense.date && 
-                        local.item === expense.item && 
-                        local.price === expense.price
-                    );
-                    if (localMatch && localMatch.billData) {
-                        expense.billName = localMatch.billName;
-                        expense.billData = localMatch.billData;
-                    }
-                });
-                
-                expenses = loadedExpenses;
-                nextExpenseId = expenses.length + 1;
-                return true;
-            } catch (error) {
-                console.error('Error loading expenses:', error);
-                // Fallback to localStorage
-                const stored = localStorage.getItem('ganpatiExpenses');
-                expenses = stored ? JSON.parse(stored) : [];
-                return false;
-            }
-        }
-
-        function saveExpenses() {
-            localStorage.setItem('ganpatiExpenses', JSON.stringify(expenses));
-        }
-
-        // Submit expense to Google Forms
-        async function submitExpenseToGoogleForms(expenseData) {
-            
-            const params = new URLSearchParams();
-            params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
-            params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
-            params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
-            // Note: Bills are stored locally only as Google Forms doesn't support file uploads to sheets
-            
-            try {
-                await fetch(EXPENSE_FORM_URL, {
-                    method: 'POST',
-                    body: params,
-                    mode: 'no-cors'
-                });
-                return true;
-            } catch (error) {
-                console.error('Error submitting expense:', error);
-                return false;
-            }
-        }
-
-        async function addExpense() {
             const date = document.getElementById('expenseDate').value;
             const item = document.getElementById('expenseItem').value;
             const price = document.getElementById('expensePrice').value;
             const billFile = document.getElementById('expenseBill').files[0];
             
-            if (!date || !item || !price) {
-                showMessage('Please fill all required fields', true, 'expenses');
-                return;
-            }
-            
-            const expenseData = {
+            const expense = {
+                id: nextExpenseId++,
                 date: date,
                 item: item,
-                price: price,
-                billName: billFile ? billFile.name : null
+                price: parseInt(price),
+                billName: billFile ? billFile.name : null,
+                billData: null,
+                timestamp: new Date().toISOString()
             };
             
-            // Try to submit to Google Forms first
-            const success = await submitExpenseToGoogleForms(expenseData);
-            
-            if (success) {
-                // Add to local display immediately
-                const expense = {
-                    id: nextExpenseId++,
-                    date: date,
-                    item: item,
-                    price: parseInt(price),
-                    billName: billFile ? billFile.name : null,
-                    billData: null,
-                    isLive: true
-                };
-                
-                // Handle file upload for local storage
-                if (billFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        expense.billData = e.target.result;
-                        expenses.push(expense);
-                        saveExpenses();
-                        updateExpensesTable();
-                        updateFinancialDashboard();
-                        clearExpenseForm();
-                        showMessage('Expense added and saved to Google Sheets!', false, 'expenses');
-                        
-                        // Refresh data after a few seconds
-                        setTimeout(() => {
-                            loadExpenses();
-                            updateExpensesTable();
-                            updateFinancialDashboard();
-                        }, 3000);
-                    };
-                    reader.readAsDataURL(billFile);
-                } else {
+            if (billFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    expense.billData = e.target.result;
                     expenses.push(expense);
-                    saveExpenses();
-                    updateExpensesTable();
+                    saveData();
+                    updateExpensesList();
                     updateFinancialDashboard();
-                    clearExpenseForm();
-                    showMessage('Expense added and saved to Google Sheets!', false, 'expenses');
-                    
-                    // Refresh data after a few seconds
-                    setTimeout(() => {
-                        loadExpenses();
-                        updateExpensesTable();
-                        updateFinancialDashboard();
-                    }, 3000);
-                }
+                    document.getElementById('expenseForm').reset();
+                    document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+                    alert('Expense added successfully!');
+                };
+                reader.readAsDataURL(billFile);
             } else {
-                // Fallback to local storage only
-                const expense = {
-                    id: nextExpenseId++,
-                    date: date,
-                    item: item,
-                    price: parseInt(price),
-                    billName: billFile ? billFile.name : null,
-                    billData: null
-                };
-                
-                if (billFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        expense.billData = e.target.result;
-                        expenses.push(expense);
-                        saveExpenses();
-                        updateExpensesTable();
-                        updateFinancialDashboard();
-                        clearExpenseForm();
-                        showMessage('Expense added locally (Google Sheets not configured)', false, 'expenses');
-                    };
-                    reader.readAsDataURL(billFile);
-                } else {
-                    expenses.push(expense);
-                    saveExpenses();
-                    updateExpensesTable();
-                    updateFinancialDashboard();
-                    clearExpenseForm();
-                    showMessage('Expense added locally (Google Sheets not configured)', false, 'expenses');
-                }
+                expenses.push(expense);
+                saveData();
+                updateExpensesList();
+                updateFinancialDashboard();
+                this.reset();
+                document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+                alert('Expense added successfully!');
             }
-        }
+        });
 
-        function clearExpenseForm() {
-            document.getElementById('expenseDate').value = '';
-            document.getElementById('expenseItem').value = '';
-            document.getElementById('expensePrice').value = '';
-            document.getElementById('expenseBill').value = '';
-        }
-
-        function updateExpensesTable() {
-            const tbody = document.getElementById('expensesTableBody');
-            tbody.innerHTML = '';
+        function updateExpensesList() {
+            const listHTML = expenses.map((e, index) => `
+                <div class="contribution-row">
+                    <div class="contribution-info">
+                        <strong>${e.item}</strong> - ${new Date(e.date).toLocaleDateString()}<br>
+                        <small>₹${e.price.toLocaleString()} ${e.billName ? '| 📄 Bill attached' : ''}</small>
+                    </div>
+                    <div class="contribution-actions">
+                        ${e.billData ? `<button class="btn btn-primary" onclick="viewBill(${e.id})">View Bill</button>` : ''}
+                        <button class="btn btn-danger" onclick="deleteExpense(${index})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
             
-            expenses.forEach(expense => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${new Date(expense.date).toLocaleDateString()}</td>
-                    <td>${expense.item}</td>
-                    <td>₹${expense.price.toLocaleString()}</td>
-                    <td>${expense.billName ? `<a href="#" onclick="viewBill(${expense.id})" style="color: #4CAF50;">📄 View</a>` : 'No Bill'}</td>
-                    <td class="actions">
-                        <button class="btn btn-danger" onclick="deleteExpense(${expense.id})">Delete</button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
+            document.getElementById('expensesList').innerHTML = listHTML;
         }
 
         function viewBill(expenseId) {
@@ -1221,17 +660,17 @@
             }
         }
 
-        function deleteExpense(expenseId) {
+        function deleteExpense(index) {
             if (confirm('Are you sure you want to delete this expense?')) {
-                expenses = expenses.filter(e => e.id !== expenseId);
-                saveExpenses();
-                updateExpensesTable();
-                showMessage('Expense deleted successfully!', false, 'expenses');
+                expenses.splice(index, 1);
+                saveData();
+                updateExpensesList();
+                updateFinancialDashboard();
             }
         }
 
         function updateFinancialDashboard() {
-            const totalContribAmount = contributions.reduce((sum, c) => sum + (c.amount && c.amount !== '0' ? parseInt(c.amount || 0) : 0), 0);
+            const totalContribAmount = contributions.reduce((sum, c) => sum + (c.residentType === 'owner' ? parseInt(c.amount || 0) : 0), 0);
             const totalExpenseAmount = expenses.reduce((sum, e) => sum + e.price, 0);
             const balance = totalContribAmount - totalExpenseAmount;
             
@@ -1254,13 +693,6 @@
             document.getElementById('financialSummary').innerHTML = summary;
         }
 
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('deleteModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
     </script>
 </body>
 </html>
