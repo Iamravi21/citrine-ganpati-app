@@ -335,6 +335,35 @@
             color: #8B4513;
             font-size: 14px;
         }
+        
+        .tab-btn {
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.7);
+            border: 2px solid #D4AF37;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .tab-btn.active {
+            background: #FF6B35;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .count-input {
+            width: 80px;
+            text-align: center;
+        }
 
         @media (max-width: 600px) {
             .container { padding: 15px; }
@@ -350,13 +379,19 @@
         <div class="header">
             <div class="ganpati-icon">🐘</div>
             <div class="society-name">Citrine Housing Society</div>
-            <div class="festival-title">🙏 Ganpati Festival Contribution 🙏</div>
+            <div class="festival-title">🙏 Ganpati Festival 🙏</div>
             <div class="subtitle">Ganpati Bappa Morya! 🌺</div>
             <div class="live-indicator">🔴 LIVE DATA - Everyone sees same info!</div>
         </div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+            <button class="tab-btn active" onclick="showTab('contribution')">💰 Contribution</button>
+            <button class="tab-btn" onclick="showTab('mahaprasad')">🍽️ Mahaprasad</button>
+        </div>
 
-        <div class="form-container">
-            <form id="contributionForm">
+        <div id="contribution" class="tab-content active">
+            <div class="form-container">
+                <form id="contributionForm">
                 <div class="form-group">
                     <label class="form-label">👤 Full Name</label>
                     <input type="text" class="form-input" id="userName" placeholder="Enter your full name" required>
@@ -393,11 +428,11 @@
                 </button>
             </form>
 
-            <div class="success-message" id="successMessage"></div>
-            <div class="error-message" id="errorMessage"></div>
-        </div>
+                <div class="success-message" id="successMessage"></div>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
 
-        <div class="contributions-list" id="contributionsList">
+            <div class="contributions-list" id="contributionsList">
             <div class="contributions-title">📋 Live Contribution Summary</div>
             <div class="loading" id="loadingMessage">Loading live data...</div>
             <div id="contributionsData"></div>
@@ -422,6 +457,65 @@
                     🔄 Refresh Data
                 </button>
             </div>
+            </div>
+        </div>
+        
+        <div id="mahaprasad" class="tab-content">
+            <div class="form-container">
+                <form id="mahaprasadForm">
+                    <div class="form-group">
+                        <label class="form-label">👤 Full Name</label>
+                        <input type="text" class="form-input" id="mahaprasadName" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🏠 Flat Number</label>
+                        <select class="form-select" id="mahaprasadFlat" required>
+                            <option value="">Select your flat number</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">👥 Adult Count (Max 4)</label>
+                        <input type="number" class="form-input count-input" id="adultCount" min="0" max="4" value="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">👶 Child Count (Max 2)</label>
+                        <input type="number" class="form-input count-input" id="childCount" min="0" max="2" value="0" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="mahaprasadSubmitBtn">
+                        🍽️ Register for Mahaprasad 🍽️
+                    </button>
+                </form>
+
+                <div class="success-message" id="mahaprasadSuccessMessage"></div>
+                <div class="error-message" id="mahaprasadErrorMessage"></div>
+            </div>
+            
+            <div class="contributions-list" id="mahaprasadList">
+                <div class="contributions-title">🍽️ Mahaprasad Registrations</div>
+                <div class="loading" id="mahaprasadLoadingMessage">Loading registrations...</div>
+                <div id="mahaprasadData"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRegistrations">0</div>
+                        <div class="stat-label">Total Registrations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalPeople">0</div>
+                        <div class="stat-label">Total People</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="loadMahaprasad()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        🔄 Refresh Data
+                    </button>
+                </div>
+            </div>
         </div>
 
         <div class="blessing">
@@ -441,6 +535,18 @@
             residentType: 'entry.1394194772',
             amount: 'entry.532603436'
         };
+        
+        // Mahaprasad configuration
+        const MAHAPRASAD_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScLhUrysTKnCAHF6rEnFhAq_tSJ8_D_Jpw2ihmGNsM7ID5VwQ/formResponse';
+        const MAHAPRASAD_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Y9E24nUa28ferRIF0a3nRVjTcHyHQJ9sgOZeeLERikY/export?format=csv';
+        const MAHAPRASAD_FIELD_IDS = {
+            name: 'entry.245139371',
+            flatNumber: 'entry.952427751',
+            adultCount: 'entry.1766035607',
+            childCount: 'entry.394683762'
+        };
+        
+        let mahaprasadRegistrations = [];
 
         // Pre-existing contributions
         const existingContributions = [
@@ -466,42 +572,59 @@
             { name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
         ];
 
+        // Tab switching function
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'mahaprasad') {
+                loadMahaprasad();
+            }
+        }
+        
         // Generate flat numbers
         function generateFlatNumbers() {
             const flatSelect = document.getElementById('flatNumber');
+            const mahaprasadFlatSelect = document.getElementById('mahaprasadFlat');
+            
+            const flats = [];
             
             // Building A: 8 floors, 6 flats each
             for (let floor = 1; floor <= 8; floor++) {
                 for (let flat = 1; flat <= 6; flat++) {
-                    const flatNum = `A${floor}0${flat}`;
-                    const option = document.createElement('option');
-                    option.value = flatNum;
-                    option.textContent = flatNum;
-                    flatSelect.appendChild(option);
+                    flats.push(`A${floor}0${flat}`);
                 }
             }
             
             // Building B: 8 floors, 8 flats each
             for (let floor = 1; floor <= 8; floor++) {
                 for (let flat = 1; flat <= 8; flat++) {
-                    const flatNum = `B${floor}0${flat}`;
-                    const option = document.createElement('option');
-                    option.value = flatNum;
-                    option.textContent = flatNum;
-                    flatSelect.appendChild(option);
+                    flats.push(`B${floor}0${flat}`);
                 }
             }
             
             // Building C: 7 floors, 6 flats each
             for (let floor = 1; floor <= 7; floor++) {
                 for (let flat = 1; flat <= 6; flat++) {
-                    const flatNum = `C${floor}0${flat}`;
-                    const option = document.createElement('option');
-                    option.value = flatNum;
-                    option.textContent = flatNum;
-                    flatSelect.appendChild(option);
+                    flats.push(`C${floor}0${flat}`);
                 }
             }
+            
+            // Populate both dropdowns
+            flats.forEach(flatNum => {
+                const option1 = document.createElement('option');
+                option1.value = flatNum;
+                option1.textContent = flatNum;
+                flatSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = flatNum;
+                option2.textContent = flatNum;
+                mahaprasadFlatSelect.appendChild(option2);
+            });
         }
 
         // Handle resident type selection
@@ -702,6 +825,187 @@
             }
         }
 
+        // Mahaprasad functions
+        async function loadMahaprasad() {
+            try {
+                document.getElementById('mahaprasadLoadingMessage').style.display = 'block';
+                
+
+                
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${MAHAPRASAD_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const registrations = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                        registrations.push({
+                            name: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            flatNumber: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            adultCount: parseInt(values[3].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
+                            childCount: parseInt(values[4].replace(/"/g, '').replace(/\r/g, '').trim() || 0)
+                        });
+                    }
+                }
+                
+                mahaprasadRegistrations = registrations;
+                displayMahaprasad(registrations);
+                document.getElementById('mahaprasadLoadingMessage').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading Mahaprasad registrations:', error);
+                document.getElementById('mahaprasadData').innerHTML = '<p style="text-align: center; color: #8B4513;">Error loading registrations. Please try again.</p>';
+                document.getElementById('mahaprasadLoadingMessage').style.display = 'none';
+            }
+        }
+        
+        function displayMahaprasad(registrations) {
+            const mahaprasadData = document.getElementById('mahaprasadData');
+            const totalRegistrations = document.getElementById('totalRegistrations');
+            const totalPeople = document.getElementById('totalPeople');
+            
+            mahaprasadData.innerHTML = '';
+            let peopleCount = 0;
+            
+            registrations.forEach(registration => {
+                const item = document.createElement('div');
+                item.className = 'contribution-item';
+                
+                const adults = registration.adultCount || 0;
+                const children = registration.childCount || 0;
+                const total = adults + children;
+                peopleCount += total;
+                
+                item.innerHTML = `
+                    <div>
+                        <strong>${registration.name}</strong><br>
+                        <small>${registration.flatNumber} - Adults: ${adults}, Children: ${children}</small>
+                    </div>
+                    <div style="font-weight: bold; color: #FF6B35;">${total} people</div>
+                `;
+                
+                mahaprasadData.appendChild(item);
+            });
+            
+            totalRegistrations.textContent = registrations.length;
+            totalPeople.textContent = peopleCount;
+        }
+        
+        async function submitMahaprasadToGoogleForms(formData) {
+            
+            const params = new URLSearchParams();
+            params.append(MAHAPRASAD_FIELD_IDS.name, formData.name);
+            params.append(MAHAPRASAD_FIELD_IDS.flatNumber, formData.flatNumber);
+            params.append(MAHAPRASAD_FIELD_IDS.adultCount, formData.adultCount);
+            params.append(MAHAPRASAD_FIELD_IDS.childCount, formData.childCount);
+            
+            try {
+                await fetch(MAHAPRASAD_FORM_URL, {
+                    method: 'POST',
+                    body: params,
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                console.error('Error submitting Mahaprasad registration:', error);
+                return false;
+            }
+        }
+        
+        function showMahaprasadMessage(message, isError = false) {
+            const successMsg = document.getElementById('mahaprasadSuccessMessage');
+            const errorMsg = document.getElementById('mahaprasadErrorMessage');
+            
+            if (isError) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            } else {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Mahaprasad form handler
+        document.getElementById('mahaprasadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('mahaprasadSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const name = document.getElementById('mahaprasadName').value;
+                const flatNumber = document.getElementById('mahaprasadFlat').value;
+                const adultCount = document.getElementById('adultCount').value;
+                const childCount = document.getElementById('childCount').value;
+                
+                // Check for duplicate flat
+                const duplicate = mahaprasadRegistrations.find(r => r.flatNumber === flatNumber);
+                if (duplicate) {
+                    showMahaprasadMessage('This flat has already registered for Mahaprasad!', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🍽️ Register for Mahaprasad 🍽️';
+                    return;
+                }
+                
+                // Validate counts
+                if (parseInt(adultCount) + parseInt(childCount) === 0) {
+                    showMahaprasadMessage('Please enter at least 1 adult or child count.', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🍽️ Register for Mahaprasad 🍽️';
+                    return;
+                }
+                
+                const formData = {
+                    name: name,
+                    flatNumber: flatNumber,
+                    adultCount: adultCount,
+                    childCount: childCount
+                };
+                
+                const success = await submitMahaprasadToGoogleForms(formData);
+                
+                if (success) {
+                    showMahaprasadMessage('🎉 Registration successful! You are registered for Mahaprasad. 🍽️');
+                    
+                    // Reset form
+                    this.reset();
+                    document.getElementById('adultCount').value = '0';
+                    document.getElementById('childCount').value = '0';
+                    
+                    // Reload data
+                    setTimeout(() => {
+                        loadMahaprasad();
+                    }, 3000);
+                } else {
+                    showMahaprasadMessage('❌ Error submitting registration. Please try again.', true);
+                }
+                
+            } catch (error) {
+                showMahaprasadMessage('❌ Error submitting registration. Please try again.', true);
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🍽️ Register for Mahaprasad 🍽️';
+        });
+
         // Handle form submission
         document.getElementById('contributionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -772,9 +1076,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             generateFlatNumbers();
             loadContributions();
+            loadMahaprasad();
             
-            // Auto-refresh contributions every 15 seconds for faster updates
-            setInterval(loadContributions, 15000);
+            // Auto-refresh both contributions and mahaprasad every 15 seconds
+            setInterval(() => {
+                loadContributions();
+                loadMahaprasad();
+            }, 15000);
         });
     </script>
 </body>
