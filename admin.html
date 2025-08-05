@@ -277,6 +277,7 @@
                     <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
                 </div>
                 <button type="submit" class="btn btn-success">Add Expense</button>
+                <button type="button" class="btn btn-primary" onclick="testExpenseSubmission()" style="margin-left: 10px;">Test Google Sheets</button>
             </form>
             <div class="contribution-list" id="expensesList"></div>
         </div>
@@ -724,17 +725,25 @@
 
         // Submit expense to Google Forms
         async function submitExpenseToGoogleForms(expenseData) {
+            console.log('Submitting expense to Google Forms:', expenseData);
             const params = new URLSearchParams();
             params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
             params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
             params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
             
+            console.log('Form URL:', EXPENSE_FORM_URL);
+            console.log('Form params:', params.toString());
+            
             try {
-                await fetch(EXPENSE_FORM_URL, {
+                const response = await fetch(EXPENSE_FORM_URL, {
                     method: 'POST',
                     body: params,
-                    mode: 'no-cors'
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
                 });
+                console.log('Expense submission successful');
                 return true;
             } catch (error) {
                 console.error('Error submitting expense:', error);
@@ -872,6 +881,29 @@
             `;
             
             document.getElementById('financialSummary').innerHTML = summary;
+        }
+        
+        // Test function for expense submission
+        async function testExpenseSubmission() {
+            const testData = {
+                date: '2024-01-15',
+                item: 'Test Item',
+                price: '100'
+            };
+            
+            console.log('Testing expense submission...');
+            const success = await submitExpenseToGoogleForms(testData);
+            
+            if (success) {
+                alert('✅ Test successful! Google Sheets connection is working.');
+                setTimeout(() => {
+                    loadExpenses();
+                    updateExpensesList();
+                    updateFinancialDashboard();
+                }, 3000);
+            } else {
+                alert('❌ Test failed! Check console for errors.');
+            }
         }
 
     </script>
