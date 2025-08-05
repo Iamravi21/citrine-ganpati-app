@@ -218,6 +218,14 @@
                     <div class="stat-value" id="pendingFlats">0</div>
                     <div class="stat-label">Pending Flats</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="mahaprasadRegistrations">0</div>
+                    <div class="stat-label">Mahaprasad Registrations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="mahaprasadPeople">0</div>
+                    <div class="stat-label">Total People for Mahaprasad</div>
+                </div>
             </div>
             <div id="recentContributions"></div>
         </div>
@@ -277,7 +285,6 @@
                     <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
                 </div>
                 <button type="submit" class="btn btn-success">Add Expense</button>
-                <button type="button" class="btn btn-primary" onclick="testExpenseSubmission()" style="margin-left: 10px;">Test Google Sheets</button>
             </form>
             <div class="contribution-list" id="expensesList"></div>
         </div>
@@ -333,13 +340,21 @@
         // Google Sheets configuration for contributions
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
         
-        // Google Sheets configuration for expenses
-        const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4sHMuSnfba0qzBavDNvt0dhP_ZDW2A9vZrvAMVc8FGu7DJg/formResponse';
-        const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1fxnYMwFKLcqG1TrHIGtCGREi8AfAR_Yag2FOgp9fJAM/export?format=csv&gid=97680792';
+        // Mahaprasad configuration
+        const MAHAPRASAD_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1Y9E24nUa28ferRIF0a3nRVjTcHyHQJ9sgOZeeLERikY/export?format=csv';
+        
+        let mahaprasadRegistrations = [];
+        
+        // Google Sheets configuration for expenses - CREATE NEW FORM
+        // Step 1: Create new Google Form with fields: Date, Item, Price
+        // Step 2: Get form response URL and field IDs
+        // Step 3: Replace URLs below
+        const EXPENSE_FORM_URL = 'YOUR_NEW_EXPENSE_FORM_URL_HERE';
+        const EXPENSE_SHEET_CSV_URL = 'YOUR_NEW_EXPENSE_SHEET_CSV_URL_HERE';
         const EXPENSE_FIELD_IDS = {
-            date: 'entry.412405448',
-            item: 'entry.2110416130',
-            price: 'entry.2118045608'
+            date: 'entry.XXXXXXXXX',
+            item: 'entry.XXXXXXXXX',
+            price: 'entry.XXXXXXXXX'
         };
 
         // Initialize with existing data
@@ -417,6 +432,44 @@
         async function loadData() {
             await loadContributions();
             await loadExpenses();
+            await loadMahaprasad();
+        }
+        
+        async function loadMahaprasad() {
+            try {
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${MAHAPRASAD_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const registrations = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                        registrations.push({
+                            name: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            flatNumber: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            adultCount: parseInt(values[3].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
+                            childCount: parseInt(values[4].replace(/"/g, '').replace(/\r/g, '').trim() || 0)
+                        });
+                    }
+                }
+                
+                mahaprasadRegistrations = registrations;
+                return true;
+            } catch (error) {
+                console.error('Error loading Mahaprasad registrations:', error);
+                mahaprasadRegistrations = [];
+                return false;
+            }
         }
         
         async function loadContributions() {
@@ -484,6 +537,14 @@
         
         async function loadExpenses() {
             try {
+                if (EXPENSE_FORM_URL === 'YOUR_NEW_EXPENSE_FORM_URL_HERE') {
+                    // Fallback to localStorage if not configured
+                    const storedExpenses = localStorage.getItem('ganpatiExpenses');
+                    expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+                    nextExpenseId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+                    return false;
+                }
+                
                 const cacheBuster = new Date().getTime();
                 const urlWithCacheBuster = `${EXPENSE_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
                 
@@ -550,11 +611,19 @@
             const allFlats = generateFlatNumbers();
             const contributedFlats = contributions.map(c => c.flatNumber);
             const pending = allFlats.length - contributedFlats.length;
+            
+            // Calculate Mahaprasad stats
+            let totalPeople = 0;
+            mahaprasadRegistrations.forEach(reg => {
+                totalPeople += (reg.adultCount || 0) + (reg.childCount || 0);
+            });
 
             document.getElementById('totalContributors').textContent = contributions.length;
             document.getElementById('totalAmount').textContent = `₹${total.toLocaleString()}`;
             document.getElementById('avgAmount').textContent = `₹${avg.toLocaleString()}`;
             document.getElementById('pendingFlats').textContent = pending;
+            document.getElementById('mahaprasadRegistrations').textContent = mahaprasadRegistrations.length;
+            document.getElementById('mahaprasadPeople').textContent = totalPeople;
 
             // Show recent contributions
             const recent = contributions.slice(-5).reverse();
@@ -678,10 +747,11 @@
             // Set today's date as default for expense form
             document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
             
-            // Auto-refresh both contributions and expenses every 30 seconds
+            // Auto-refresh contributions, expenses, and mahaprasad every 30 seconds
             setInterval(async () => {
                 await loadContributions();
                 await loadExpenses();
+                await loadMahaprasad();
                 const activeTab = document.querySelector('.tab-content.active').id;
                 if (activeTab === 'dashboard') updateDashboard();
                 if (activeTab === 'manage') updateManageList();
@@ -725,25 +795,21 @@
 
         // Submit expense to Google Forms
         async function submitExpenseToGoogleForms(expenseData) {
-            console.log('Submitting expense to Google Forms:', expenseData);
+            if (EXPENSE_FORM_URL === 'YOUR_NEW_EXPENSE_FORM_URL_HERE') {
+                return false; // Not configured
+            }
+            
             const params = new URLSearchParams();
             params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
             params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
             params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
             
-            console.log('Form URL:', EXPENSE_FORM_URL);
-            console.log('Form params:', params.toString());
-            
             try {
-                const response = await fetch(EXPENSE_FORM_URL, {
+                await fetch(EXPENSE_FORM_URL, {
                     method: 'POST',
                     body: params,
-                    mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+                    mode: 'no-cors'
                 });
-                console.log('Expense submission successful');
                 return true;
             } catch (error) {
                 console.error('Error submitting expense:', error);
@@ -760,7 +826,7 @@
             const price = document.getElementById('expensePrice').value;
             const billFile = document.getElementById('expenseBill').files[0];
             
-            // Submit to Google Forms first
+            // Try to submit to Google Forms first
             const success = await submitExpenseToGoogleForms({ date, item, price });
             
             const expense = {
@@ -783,7 +849,7 @@
                     updateFinancialDashboard();
                     document.getElementById('expenseForm').reset();
                     document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
-                    alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally only!');
+                    alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally (Google Sheets not configured)');
                     
                     if (success) {
                         setTimeout(() => {
@@ -801,7 +867,7 @@
                 updateFinancialDashboard();
                 this.reset();
                 document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
-                alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally only!');
+                alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally (Google Sheets not configured)');
                 
                 if (success) {
                     setTimeout(() => {
@@ -883,28 +949,7 @@
             document.getElementById('financialSummary').innerHTML = summary;
         }
         
-        // Test function for expense submission
-        async function testExpenseSubmission() {
-            const testData = {
-                date: '2024-01-15',
-                item: 'Test Item',
-                price: '100'
-            };
-            
-            console.log('Testing expense submission...');
-            const success = await submitExpenseToGoogleForms(testData);
-            
-            if (success) {
-                alert('✅ Test successful! Google Sheets connection is working.');
-                setTimeout(() => {
-                    loadExpenses();
-                    updateExpensesList();
-                    updateFinancialDashboard();
-                }, 3000);
-            } else {
-                alert('❌ Test failed! Check console for errors.');
-            }
-        }
+
 
     </script>
 </body>
