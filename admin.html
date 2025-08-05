@@ -345,16 +345,13 @@
         
         let mahaprasadRegistrations = [];
         
-        // Google Sheets configuration for expenses - CREATE NEW FORM
-        // Step 1: Create new Google Form with fields: Date, Item, Price
-        // Step 2: Get form response URL and field IDs
-        // Step 3: Replace URLs below
-        const EXPENSE_FORM_URL = 'YOUR_NEW_EXPENSE_FORM_URL_HERE';
-        const EXPENSE_SHEET_CSV_URL = 'YOUR_NEW_EXPENSE_SHEET_CSV_URL_HERE';
+        // Google Sheets configuration for expenses
+        const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfRUlQ6b_zsjsKx5NCXb_DuCqDTVWAnrDDX5r19SUIDG_tJFA/formResponse';
+        const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1EA0SEaRCdJiFm44OyKZ3JU8Sj1TbO3h7EZXw0A6sdg0/export?format=csv';
         const EXPENSE_FIELD_IDS = {
-            date: 'entry.XXXXXXXXX',
-            item: 'entry.XXXXXXXXX',
-            price: 'entry.XXXXXXXXX'
+            date: 'entry.1105929670',
+            item: 'entry.1943750769',
+            price: 'entry.1962827851'
         };
 
         // Initialize with existing data
@@ -537,13 +534,6 @@
         
         async function loadExpenses() {
             try {
-                if (EXPENSE_FORM_URL === 'YOUR_NEW_EXPENSE_FORM_URL_HERE') {
-                    // Fallback to localStorage if not configured
-                    const storedExpenses = localStorage.getItem('ganpatiExpenses');
-                    expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
-                    nextExpenseId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
-                    return false;
-                }
                 
                 const cacheBuster = new Date().getTime();
                 const urlWithCacheBuster = `${EXPENSE_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
@@ -605,9 +595,14 @@
         }
 
         function updateDashboard() {
-            const total = contributions.reduce((sum, c) => sum + (c.residentType === 'owner' ? parseInt(c.amount || 0) : 0), 0);
-            const ownerContributions = contributions.filter(c => c.residentType === 'owner' && c.amount > 0);
-            const avg = ownerContributions.length > 0 ? Math.round(total / ownerContributions.length) : 0;
+            // Calculate total including both owners and tenants
+            const total = contributions.reduce((sum, c) => {
+                const amount = parseInt(c.amount || 0);
+                return sum + (amount > 0 ? amount : 0);
+            }, 0);
+            
+            const contributionsWithAmount = contributions.filter(c => parseInt(c.amount || 0) > 0);
+            const avg = contributionsWithAmount.length > 0 ? Math.round(total / contributionsWithAmount.length) : 0;
             const allFlats = generateFlatNumbers();
             const contributedFlats = contributions.map(c => c.flatNumber);
             const pending = allFlats.length - contributedFlats.length;
@@ -795,9 +790,6 @@
 
         // Submit expense to Google Forms
         async function submitExpenseToGoogleForms(expenseData) {
-            if (EXPENSE_FORM_URL === 'YOUR_NEW_EXPENSE_FORM_URL_HERE') {
-                return false; // Not configured
-            }
             
             const params = new URLSearchParams();
             params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
@@ -926,7 +918,10 @@
         }
 
         function updateFinancialDashboard() {
-            const totalContribAmount = contributions.reduce((sum, c) => sum + (c.residentType === 'owner' ? parseInt(c.amount || 0) : 0), 0);
+            const totalContribAmount = contributions.reduce((sum, c) => {
+                const amount = parseInt(c.amount || 0);
+                return sum + (amount > 0 ? amount : 0);
+            }, 0);
             const totalExpenseAmount = expenses.reduce((sum, e) => sum + e.price, 0);
             const balance = totalContribAmount - totalExpenseAmount;
             
