@@ -329,6 +329,9 @@
         let expenses = [];
         let nextExpenseId = 1;
         
+        // Google Sheets configuration for contributions
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
+        
         // Google Sheets configuration for expenses
         const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4sHMuSnfba0qzBavDNvt0dhP_ZDW2A9vZrvAMVc8FGu7DJg/formResponse';
         const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1fxnYMwFKLcqG1TrHIGtCGREi8AfAR_Yag2FOgp9fJAM/export?format=csv&gid=97680792';
@@ -405,12 +408,72 @@
             if (tabName === 'financial') updateFinancialDashboard();
         }
 
-        function loadData() {
-            const stored = localStorage.getItem('ganpatiContributions');
-            contributions = stored ? JSON.parse(stored) : [...existingContributions];
-            saveData();
-            
-            loadExpenses();
+        async function loadData() {
+            await loadContributions();
+            await loadExpenses();
+        }
+        
+        async function loadContributions() {
+            try {
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const loadedContributions = [];
+                
+                // Add existing contributions first
+                existingContributions.forEach((contrib, index) => {
+                    loadedContributions.push({
+                        id: index + 1,
+                        ...contrib
+                    });
+                });
+                
+                // Add new contributions from sheet (skip header row)
+                let currentId = existingContributions.length + 1;
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 6 && values[2] && values[2].trim()) {
+                        const newEntry = {
+                            id: currentId++,
+                            name: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            flatNumber: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            residentType: values[4].replace(/"/g, '').replace(/\r/g, '').trim() === 'Owner' ? 'owner' : 'tenant',
+                            amount: parseInt(values[5].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
+                            timestamp: values[0].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            isNew: true
+                        };
+                        
+                        // Check if this entry already exists in existing contributions
+                        const isDuplicate = existingContributions.some(existing => 
+                            existing.flatNumber === newEntry.flatNumber
+                        );
+                        
+                        if (!isDuplicate) {
+                            loadedContributions.push(newEntry);
+                        }
+                    }
+                }
+                
+                contributions = loadedContributions;
+                return true;
+            } catch (error) {
+                console.error('Error loading contributions:', error);
+                // Fallback to existing contributions only
+                contributions = existingContributions.map((contrib, index) => ({
+                    id: index + 1,
+                    ...contrib
+                }));
+                return false;
+            }
         }
         
         async function loadExpenses() {
@@ -596,9 +659,9 @@
         });
 
         // Show amount field by default when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             populateFlatDropdown();
-            loadData();
+            await loadData();
             updateDashboard();
             updateFinancialDashboard();
             
@@ -609,10 +672,13 @@
             // Set today's date as default for expense form
             document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
             
-            // Auto-refresh expenses every 30 seconds
+            // Auto-refresh both contributions and expenses every 30 seconds
             setInterval(async () => {
+                await loadContributions();
                 await loadExpenses();
                 const activeTab = document.querySelector('.tab-content.active').id;
+                if (activeTab === 'dashboard') updateDashboard();
+                if (activeTab === 'manage') updateManageList();
                 if (activeTab === 'expenses') updateExpensesList();
                 if (activeTab === 'financial') updateFinancialDashboard();
             }, 30000);
