@@ -271,6 +271,8 @@
             <button class="tab-btn active" onclick="showTab('dashboard')">📊 Dashboard</button>
             <button class="tab-btn" onclick="showTab('manage')">✏️ Manage Records</button>
             <button class="tab-btn" onclick="showTab('add')">➕ Add New</button>
+            <button class="tab-btn" onclick="showTab('expenses')">💰 Expenses</button>
+            <button class="tab-btn" onclick="showTab('financial')">📈 Financial</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -376,6 +378,79 @@
             <div class="success-message" id="addSuccessMessage"></div>
             <div class="error-message" id="addErrorMessage"></div>
         </div>
+
+        <!-- Expenses Tab -->
+        <div id="expenses" class="tab-content">
+            <h3>Expense Tracker</h3>
+            <div class="add-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-input" id="expenseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Item Purchased</label>
+                        <input type="text" class="form-input" id="expenseItem" placeholder="Enter item name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Price (₹)</label>
+                        <input type="number" class="form-input" id="expensePrice" placeholder="Enter price" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Bill (Optional)</label>
+                        <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" onclick="addExpense()">Add Expense</button>
+                    </div>
+                </div>
+            </div>
+            <div class="success-message" id="expenseSuccessMessage"></div>
+            <div class="error-message" id="expenseErrorMessage"></div>
+            
+            <table class="contribution-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Bill</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="expensesTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Financial Dashboard Tab -->
+        <div id="financial" class="tab-content">
+            <h3>Financial Dashboard</h3>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalContributions">₹0</div>
+                    <div class="stat-label">Total Contributions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalExpenses">₹0</div>
+                    <div class="stat-label">Total Expenses</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="remainingBalance">₹0</div>
+                    <div class="stat-label">Remaining Balance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="expenseCount">0</div>
+                    <div class="stat-label">Total Items Purchased</div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(76,175,80,0.1); padding: 20px; border-radius: 15px; margin-top: 20px; border-left: 4px solid #4CAF50;">
+                <h4 style="color: #4CAF50; margin-bottom: 15px;">📈 Financial Summary</h4>
+                <div id="financialSummary" style="color: #8B4513; line-height: 1.6;"></div>
+            </div>
+        </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
@@ -395,12 +470,23 @@
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
         const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSeTa_L_6S10zb0owk8tSM8JgaVWTdGDYXTov7Pl7T1x96Nijw/formResponse';
         
+        // Expense tracking URLs
+        const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1fxnYMwFKLcqG1TrHIGtCGREi8AfAR_Yag2FOgp9fJAM/export?format=csv&gid=97680792';
+        const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4sHMuSnfba0qzBavDNvt0dhP_ZDW2A9vZrvAMVc8FGu7DJg/formResponse';
+        
         // Form field IDs from pre-filled URL
         const FIELD_IDS = {
             name: 'entry.1950429096',
             flatNumber: 'entry.1176797061', 
             residentType: 'entry.1394194772',
             amount: 'entry.532603436'
+        };
+        
+        // Expense form field IDs
+        const EXPENSE_FIELD_IDS = {
+            date: 'entry.412405448',
+            item: 'entry.2110416130',
+            price: 'entry.2118045608'
         };
         
         // Pre-existing contributions (fallback)
@@ -428,9 +514,11 @@
         ];
 
         let contributions = [];
+        let expenses = [];
         let editingId = null;
         let deleteId = null;
         let nextId = 21;
+        let nextExpenseId = 1;
 
         // Load contributions from Google Sheets
         async function loadContributions() {
@@ -543,6 +631,8 @@
             
             if (tabName === 'dashboard') updateDashboard();
             if (tabName === 'manage') updateTable();
+            if (tabName === 'expenses') updateExpensesTable();
+            if (tabName === 'financial') updateFinancialDashboard();
         }
 
         function updateDashboard() {
@@ -761,8 +851,25 @@
         }
 
         function showMessage(message, isError, section) {
-            const successId = section === 'add' ? 'addSuccessMessage' : (section === 'dashboard' ? 'dashboardSuccessMessage' : 'successMessage');
-            const errorId = section === 'add' ? 'addErrorMessage' : (section === 'dashboard' ? 'dashboardErrorMessage' : 'errorMessage');
+            let successId, errorId;
+            
+            switch(section) {
+                case 'add':
+                    successId = 'addSuccessMessage';
+                    errorId = 'addErrorMessage';
+                    break;
+                case 'expenses':
+                    successId = 'expenseSuccessMessage';
+                    errorId = 'expenseErrorMessage';
+                    break;
+                case 'dashboard':
+                    successId = 'dashboardSuccessMessage';
+                    errorId = 'dashboardErrorMessage';
+                    break;
+                default:
+                    successId = 'successMessage';
+                    errorId = 'errorMessage';
+            }
             
             // Create dashboard messages if they don't exist
             if (section === 'dashboard') {
@@ -801,22 +908,35 @@
         document.addEventListener('DOMContentLoaded', async function() {
             populateFlatDropdown();
             
-            // Load data from Google Sheets
+            // Load data from Google Sheets and expenses
             const loaded = await loadContributions();
             if (!loaded) {
                 showMessage('⚠️ Could not load live data. Showing cached data only.', true, 'dashboard');
             }
             
+            const expensesLoaded = await loadExpenses();
+            if (!expensesLoaded) {
+                showMessage('⚠️ Expense Google Sheets not configured. Using local storage.', true, 'expenses');
+            }
+            
             updateDashboard();
             updateTable();
+            updateExpensesTable();
+            updateFinancialDashboard();
+            
+            // Set today's date as default for expense form
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
             
             // Auto-refresh every 15 seconds to match public app
             setInterval(async () => {
                 await loadContributions();
+                await loadExpenses();
                 updateDashboard();
-                if (document.querySelector('.tab-content.active').id === 'manage') {
-                    updateTable();
-                }
+                updateFinancialDashboard();
+                const activeTab = document.querySelector('.tab-content.active').id;
+                if (activeTab === 'manage') updateTable();
+                if (activeTab === 'expenses') updateExpensesTable();
+                if (activeTab === 'financial') updateFinancialDashboard();
             }, 15000);
         });
 
@@ -864,6 +984,274 @@
             }
             
             showMessage('CSV file exported successfully!', false, 'dashboard');
+        }
+
+        // Load expenses from Google Sheets
+        async function loadExpenses() {
+            try {
+                
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${EXPENSE_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const lines = csvText.trim().split('\n');
+                const loadedExpenses = [];
+                
+                // Parse expenses from sheet (skip header row)
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 3 && values[1] && values[1].trim()) {
+                        loadedExpenses.push({
+                            id: i,
+                            date: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            item: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            price: parseInt(values[3].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
+                            billName: null, // Bills stored locally only
+                            billData: null,
+                            isLive: true
+                        });
+                    }
+                }
+                
+                // Merge with local bills data
+                const localExpenses = JSON.parse(localStorage.getItem('ganpatiExpenses') || '[]');
+                loadedExpenses.forEach(expense => {
+                    const localMatch = localExpenses.find(local => 
+                        local.date === expense.date && 
+                        local.item === expense.item && 
+                        local.price === expense.price
+                    );
+                    if (localMatch && localMatch.billData) {
+                        expense.billName = localMatch.billName;
+                        expense.billData = localMatch.billData;
+                    }
+                });
+                
+                expenses = loadedExpenses;
+                nextExpenseId = expenses.length + 1;
+                return true;
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+                // Fallback to localStorage
+                const stored = localStorage.getItem('ganpatiExpenses');
+                expenses = stored ? JSON.parse(stored) : [];
+                return false;
+            }
+        }
+
+        function saveExpenses() {
+            localStorage.setItem('ganpatiExpenses', JSON.stringify(expenses));
+        }
+
+        // Submit expense to Google Forms
+        async function submitExpenseToGoogleForms(expenseData) {
+            
+            const params = new URLSearchParams();
+            params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
+            params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
+            params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
+            // Note: Bills are stored locally only as Google Forms doesn't support file uploads to sheets
+            
+            try {
+                await fetch(EXPENSE_FORM_URL, {
+                    method: 'POST',
+                    body: params,
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                console.error('Error submitting expense:', error);
+                return false;
+            }
+        }
+
+        async function addExpense() {
+            const date = document.getElementById('expenseDate').value;
+            const item = document.getElementById('expenseItem').value;
+            const price = document.getElementById('expensePrice').value;
+            const billFile = document.getElementById('expenseBill').files[0];
+            
+            if (!date || !item || !price) {
+                showMessage('Please fill all required fields', true, 'expenses');
+                return;
+            }
+            
+            const expenseData = {
+                date: date,
+                item: item,
+                price: price,
+                billName: billFile ? billFile.name : null
+            };
+            
+            // Try to submit to Google Forms first
+            const success = await submitExpenseToGoogleForms(expenseData);
+            
+            if (success) {
+                // Add to local display immediately
+                const expense = {
+                    id: nextExpenseId++,
+                    date: date,
+                    item: item,
+                    price: parseInt(price),
+                    billName: billFile ? billFile.name : null,
+                    billData: null,
+                    isLive: true
+                };
+                
+                // Handle file upload for local storage
+                if (billFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        expense.billData = e.target.result;
+                        expenses.push(expense);
+                        saveExpenses();
+                        updateExpensesTable();
+                        updateFinancialDashboard();
+                        clearExpenseForm();
+                        showMessage('Expense added and saved to Google Sheets!', false, 'expenses');
+                        
+                        // Refresh data after a few seconds
+                        setTimeout(() => {
+                            loadExpenses();
+                            updateExpensesTable();
+                            updateFinancialDashboard();
+                        }, 3000);
+                    };
+                    reader.readAsDataURL(billFile);
+                } else {
+                    expenses.push(expense);
+                    saveExpenses();
+                    updateExpensesTable();
+                    updateFinancialDashboard();
+                    clearExpenseForm();
+                    showMessage('Expense added and saved to Google Sheets!', false, 'expenses');
+                    
+                    // Refresh data after a few seconds
+                    setTimeout(() => {
+                        loadExpenses();
+                        updateExpensesTable();
+                        updateFinancialDashboard();
+                    }, 3000);
+                }
+            } else {
+                // Fallback to local storage only
+                const expense = {
+                    id: nextExpenseId++,
+                    date: date,
+                    item: item,
+                    price: parseInt(price),
+                    billName: billFile ? billFile.name : null,
+                    billData: null
+                };
+                
+                if (billFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        expense.billData = e.target.result;
+                        expenses.push(expense);
+                        saveExpenses();
+                        updateExpensesTable();
+                        updateFinancialDashboard();
+                        clearExpenseForm();
+                        showMessage('Expense added locally (Google Sheets not configured)', false, 'expenses');
+                    };
+                    reader.readAsDataURL(billFile);
+                } else {
+                    expenses.push(expense);
+                    saveExpenses();
+                    updateExpensesTable();
+                    updateFinancialDashboard();
+                    clearExpenseForm();
+                    showMessage('Expense added locally (Google Sheets not configured)', false, 'expenses');
+                }
+            }
+        }
+
+        function clearExpenseForm() {
+            document.getElementById('expenseDate').value = '';
+            document.getElementById('expenseItem').value = '';
+            document.getElementById('expensePrice').value = '';
+            document.getElementById('expenseBill').value = '';
+        }
+
+        function updateExpensesTable() {
+            const tbody = document.getElementById('expensesTableBody');
+            tbody.innerHTML = '';
+            
+            expenses.forEach(expense => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(expense.date).toLocaleDateString()}</td>
+                    <td>${expense.item}</td>
+                    <td>₹${expense.price.toLocaleString()}</td>
+                    <td>${expense.billName ? `<a href="#" onclick="viewBill(${expense.id})" style="color: #4CAF50;">📄 View</a>` : 'No Bill'}</td>
+                    <td class="actions">
+                        <button class="btn btn-danger" onclick="deleteExpense(${expense.id})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function viewBill(expenseId) {
+            const expense = expenses.find(e => e.id === expenseId);
+            if (expense && expense.billData) {
+                const newWindow = window.open();
+                newWindow.document.write(`
+                    <html>
+                        <head><title>Bill - ${expense.item}</title></head>
+                        <body style="margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f0f0f0;">
+                            <div style="max-width: 90%; max-height: 90%;">
+                                ${expense.billData.startsWith('data:application/pdf') ? 
+                                    `<embed src="${expense.billData}" width="800" height="600" type="application/pdf">` :
+                                    `<img src="${expense.billData}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`
+                                }
+                            </div>
+                        </body>
+                    </html>
+                `);
+            }
+        }
+
+        function deleteExpense(expenseId) {
+            if (confirm('Are you sure you want to delete this expense?')) {
+                expenses = expenses.filter(e => e.id !== expenseId);
+                saveExpenses();
+                updateExpensesTable();
+                showMessage('Expense deleted successfully!', false, 'expenses');
+            }
+        }
+
+        function updateFinancialDashboard() {
+            const totalContribAmount = contributions.reduce((sum, c) => sum + (c.amount && c.amount !== '0' ? parseInt(c.amount || 0) : 0), 0);
+            const totalExpenseAmount = expenses.reduce((sum, e) => sum + e.price, 0);
+            const balance = totalContribAmount - totalExpenseAmount;
+            
+            document.getElementById('totalContributions').textContent = `₹${totalContribAmount.toLocaleString()}`;
+            document.getElementById('totalExpenses').textContent = `₹${totalExpenseAmount.toLocaleString()}`;
+            document.getElementById('remainingBalance').textContent = `₹${balance.toLocaleString()}`;
+            document.getElementById('expenseCount').textContent = expenses.length;
+            
+            const balanceColor = balance >= 0 ? '#4CAF50' : '#f44336';
+            document.getElementById('remainingBalance').style.color = balanceColor;
+            
+            const summary = `
+                <p><strong>Total Money Collected:</strong> ₹${totalContribAmount.toLocaleString()}</p>
+                <p><strong>Total Money Spent:</strong> ₹${totalExpenseAmount.toLocaleString()}</p>
+                <p><strong>Remaining Balance:</strong> <span style="color: ${balanceColor}; font-weight: bold;">₹${balance.toLocaleString()}</span></p>
+                <p><strong>Budget Status:</strong> ${balance >= 0 ? '✅ Within Budget' : '⚠️ Over Budget'}</p>
+                <p><strong>Average Expense per Item:</strong> ₹${expenses.length > 0 ? Math.round(totalExpenseAmount / expenses.length).toLocaleString() : '0'}</p>
+            `;
+            
+            document.getElementById('financialSummary').innerHTML = summary;
         }
 
         // Close modal when clicking outside
