@@ -328,6 +328,15 @@
         let contributions = [];
         let expenses = [];
         let nextExpenseId = 1;
+        
+        // Google Sheets configuration for expenses
+        const EXPENSE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSe4sHMuSnfba0qzBavDNvt0dhP_ZDW2A9vZrvAMVc8FGu7DJg/formResponse';
+        const EXPENSE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1fxnYMwFKLcqG1TrHIGtCGREi8AfAR_Yag2FOgp9fJAM/export?format=csv&gid=97680792';
+        const EXPENSE_FIELD_IDS = {
+            date: 'entry.412405448',
+            item: 'entry.2110416130',
+            price: 'entry.2118045608'
+        };
 
         // Initialize with existing data
         const existingContributions = [
@@ -401,9 +410,63 @@
             contributions = stored ? JSON.parse(stored) : [...existingContributions];
             saveData();
             
-            const storedExpenses = localStorage.getItem('ganpatiExpenses');
-            expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
-            nextExpenseId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+            loadExpenses();
+        }
+        
+        async function loadExpenses() {
+            try {
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${EXPENSE_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const loadedExpenses = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 3 && values[1] && values[1].trim()) {
+                        loadedExpenses.push({
+                            id: i,
+                            date: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            item: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            price: parseInt(values[3].replace(/"/g, '').replace(/\r/g, '').trim() || 0),
+                            billName: null,
+                            billData: null,
+                            isLive: true
+                        });
+                    }
+                }
+                
+                const localExpenses = JSON.parse(localStorage.getItem('ganpatiExpenses') || '[]');
+                loadedExpenses.forEach(expense => {
+                    const localMatch = localExpenses.find(local => 
+                        local.date === expense.date && 
+                        local.item === expense.item && 
+                        local.price === expense.price
+                    );
+                    if (localMatch && localMatch.billData) {
+                        expense.billName = localMatch.billName;
+                        expense.billData = localMatch.billData;
+                    }
+                });
+                
+                expenses = loadedExpenses;
+                nextExpenseId = expenses.length + 1;
+                return true;
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+                const storedExpenses = localStorage.getItem('ganpatiExpenses');
+                expenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+                nextExpenseId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+                return false;
+            }
         }
 
         function saveData() {
@@ -545,6 +608,14 @@
             
             // Set today's date as default for expense form
             document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            
+            // Auto-refresh expenses every 30 seconds
+            setInterval(async () => {
+                await loadExpenses();
+                const activeTab = document.querySelector('.tab-content.active').id;
+                if (activeTab === 'expenses') updateExpensesList();
+                if (activeTab === 'financial') updateFinancialDashboard();
+            }, 30000);
         });
 
         document.getElementById('addForm').addEventListener('submit', function(e) {
@@ -580,14 +651,37 @@
             updateDashboard();
         });
 
+        // Submit expense to Google Forms
+        async function submitExpenseToGoogleForms(expenseData) {
+            const params = new URLSearchParams();
+            params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
+            params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
+            params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
+            
+            try {
+                await fetch(EXPENSE_FORM_URL, {
+                    method: 'POST',
+                    body: params,
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                console.error('Error submitting expense:', error);
+                return false;
+            }
+        }
+
         // Expense form handler
-        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const date = document.getElementById('expenseDate').value;
             const item = document.getElementById('expenseItem').value;
             const price = document.getElementById('expensePrice').value;
             const billFile = document.getElementById('expenseBill').files[0];
+            
+            // Submit to Google Forms first
+            const success = await submitExpenseToGoogleForms({ date, item, price });
             
             const expense = {
                 id: nextExpenseId++,
@@ -596,7 +690,7 @@
                 price: parseInt(price),
                 billName: billFile ? billFile.name : null,
                 billData: null,
-                timestamp: new Date().toISOString()
+                isLive: success
             };
             
             if (billFile) {
@@ -609,7 +703,15 @@
                     updateFinancialDashboard();
                     document.getElementById('expenseForm').reset();
                     document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
-                    alert('Expense added successfully!');
+                    alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally only!');
+                    
+                    if (success) {
+                        setTimeout(() => {
+                            loadExpenses();
+                            updateExpensesList();
+                            updateFinancialDashboard();
+                        }, 3000);
+                    }
                 };
                 reader.readAsDataURL(billFile);
             } else {
@@ -619,7 +721,15 @@
                 updateFinancialDashboard();
                 this.reset();
                 document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
-                alert('Expense added successfully!');
+                alert(success ? 'Expense added and saved to Google Sheets!' : 'Expense added locally only!');
+                
+                if (success) {
+                    setTimeout(() => {
+                        loadExpenses();
+                        updateExpensesList();
+                        updateFinancialDashboard();
+                    }, 3000);
+                }
             }
         });
 
