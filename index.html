@@ -1279,7 +1279,8 @@
                 }
                 
                 // Check slot availability (max 2 per slot per date)
-                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && r.slot === slot);
+                const slotWithAarti = slot + ' Aarti';
+                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && (r.slot === slot || r.slot === slotWithAarti));
                 if (sameSlotSameDate.length >= 2) {
                     showAartiMessage(`${slot} Aarti slot is fully booked for ${new Date(date).toLocaleDateString()}. Please choose a different date or slot.`, true);
                     submitBtn.disabled = false;
@@ -1291,16 +1292,13 @@
                     name: name,
                     flatNumber: flatNumber,
                     date: date,
-                    slot: slot
+                    slot: slot + ' Aarti'  // Add 'Aarti' to match form expectation
                 };
                 
                 const success = await submitAartiToGoogleForms(formData);
                 
                 if (success) {
-                    showAartiMessage('🎉 Registration successful! You are registered for Aarti. 🕉️');
-                    
-                    // Add to local array for immediate validation
-                    aartiRegistrations.push(formData);
+                    showAartiMessage('🎉 Registration successful! Your details will appear below shortly. 🕉️');
                     
                     // Reset form
                     this.reset();
@@ -1311,10 +1309,18 @@
                         option.classList.remove('selected');
                     });
                     
-                    // Reload data
+                    // Reload data multiple times to get live data from Google Sheets
                     setTimeout(() => {
                         loadAarti();
-                    }, 1000);
+                    }, 3000);
+                    
+                    setTimeout(() => {
+                        loadAarti();
+                    }, 8000);
+                    
+                    setTimeout(() => {
+                        loadAarti();
+                    }, 15000);
                 } else {
                     showAartiMessage('❌ Error submitting registration. Please try again.', true);
                 }
@@ -1326,6 +1332,8 @@
             submitBtn.disabled = false;
             submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
         });
+        
+
         
         // Handle Aarti slot selection
         document.querySelectorAll('input[name="aartiSlot"]').forEach(radio => {
