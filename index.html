@@ -1160,9 +1160,11 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
+                const dateFormatted = new Date(reg.date).toLocaleDateString();
+                
                 item.innerHTML = `
                     <div>
-                        <strong>${reg.slot}</strong><br>
+                        <strong>${dateFormatted} - ${reg.slot}</strong><br>
                         <small>${reg.name} ${reg.flatNumber}</small>
                     </div>
                 `;
@@ -1245,10 +1247,10 @@
                     return;
                 }
                 
-                // Check for duplicate flat on same date
+                // Check for duplicate flat on same date (any slot)
                 const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber && r.date === date);
                 if (duplicateFlat) {
-                    showAartiMessage('This flat has already registered for Aarti on this date!', true);
+                    showAartiMessage('This flat has already registered for Aarti on this date! Only one slot per flat per day is allowed.', true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
