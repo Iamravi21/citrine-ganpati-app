@@ -546,11 +546,11 @@
                         <label class="form-label">🕉️ Aarti Slot</label>
                         <div class="radio-group">
                             <div class="radio-option">
-                                <input type="radio" id="morning" name="aartiSlot" value="Morning">
+                                <input type="radio" id="morning" name="aartiSlot" value="Morning Aarti">
                                 <label for="morning">🌅 Morning Aarti</label>
                             </div>
                             <div class="radio-option">
-                                <input type="radio" id="evening" name="aartiSlot" value="Evening">
+                                <input type="radio" id="evening" name="aartiSlot" value="Evening Aarti">
                                 <label for="evening">🌆 Evening Aarti</label>
                             </div>
                         </div>
@@ -1160,9 +1160,11 @@
             registrations.forEach(reg => {
                 const dateKey = reg.date;
                 if (!groupedByDate[dateKey]) {
-                    groupedByDate[dateKey] = { Morning: [], Evening: [] };
+                    groupedByDate[dateKey] = { 'Morning Aarti': [], 'Evening Aarti': [] };
                 }
-                groupedByDate[dateKey][reg.slot].push(reg);
+                if (groupedByDate[dateKey][reg.slot]) {
+                    groupedByDate[dateKey][reg.slot].push(reg);
+                }
             });
             
             // Display by date
@@ -1171,17 +1173,17 @@
                 dateSection.style.marginBottom = '20px';
                 dateSection.innerHTML = `<h3 style="color: #FF6B35; margin-bottom: 10px;">📅 ${new Date(date).toLocaleDateString()}</h3>`;
                 
-                ['Morning', 'Evening'].forEach(slot => {
+                ['Morning Aarti', 'Evening Aarti'].forEach(slot => {
                     const slotDiv = document.createElement('div');
                     slotDiv.style.marginBottom = '10px';
                     
-                    const registrationsForSlot = groupedByDate[date][slot];
+                    const registrationsForSlot = groupedByDate[date][slot] || [];
                     const slotsUsed = registrationsForSlot.length;
                     const slotsAvailable = 2 - slotsUsed;
                     
                     slotDiv.innerHTML = `
                         <div style="background: rgba(255,107,53,0.1); padding: 10px; border-radius: 8px; border-left: 4px solid #FF6B35;">
-                            <strong>${slot === 'Morning' ? '🌅' : '🌆'} ${slot} Aarti (${slotsUsed}/2 slots filled)</strong>
+                            <strong>${slot === 'Morning Aarti' ? '🌅' : '🌆'} ${slot} (${slotsUsed}/2 slots filled)</strong>
                             ${registrationsForSlot.map(reg => `
                                 <div style="margin-top: 5px; padding: 5px; background: rgba(255,255,255,0.7); border-radius: 5px;">
                                     ${reg.name} - ${reg.flatNumber}
@@ -1279,10 +1281,9 @@
                 }
                 
                 // Check slot availability (max 2 per slot per date)
-                const slotWithAarti = slot + ' Aarti';
-                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && (r.slot === slot || r.slot === slotWithAarti));
+                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && r.slot === slot);
                 if (sameSlotSameDate.length >= 2) {
-                    showAartiMessage(`${slot} Aarti slot is fully booked for ${new Date(date).toLocaleDateString()}. Please choose a different date or slot.`, true);
+                    showAartiMessage(`${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Please choose a different date or slot.`, true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
@@ -1292,7 +1293,7 @@
                     name: name,
                     flatNumber: flatNumber,
                     date: date,
-                    slot: slot + ' Aarti'  // Add 'Aarti' to match form expectation
+                    slot: slot  // Use exact value from radio button
                 };
                 
                 const success = await submitAartiToGoogleForms(formData);
