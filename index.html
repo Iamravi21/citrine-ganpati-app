@@ -1210,9 +1210,8 @@
         }
         
         async function submitAartiToGoogleForms(formData) {
-            // Format date as MM/DD/YYYY for Google Forms
-            const dateObj = new Date(formData.date);
-            const formattedDate = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+            // Use ISO date format (YYYY-MM-DD) as shown in your working URL
+            const formattedDate = formData.date; // Keep original YYYY-MM-DD format
             
             const params = new URLSearchParams();
             params.append(AARTI_FIELD_IDS.name, formData.name);
@@ -1226,6 +1225,7 @@
                 date: formattedDate,
                 slot: formData.slot
             });
+            console.log('URL params:', params.toString());
             
             try {
                 const response = await fetch(AARTI_FORM_URL, {
