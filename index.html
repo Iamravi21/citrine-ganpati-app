@@ -1156,22 +1156,15 @@
                 return;
             }
             
-            // Sort by date
-            registrations.sort((a, b) => new Date(a.date) - new Date(b.date));
-            
             registrations.forEach(reg => {
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                const dateFormatted = new Date(reg.date).toLocaleDateString();
-                const slotIcon = reg.slot === 'Morning Aarti' ? '🌅' : '🌆';
-                
                 item.innerHTML = `
                     <div>
-                        <strong>${reg.name}</strong><br>
-                        <small>${reg.flatNumber} - 📅 ${dateFormatted}</small>
+                        <strong>${reg.slot}</strong><br>
+                        <small>${reg.name} ${reg.flatNumber}</small>
                     </div>
-                    <div style="font-weight: bold; color: #FF6B35;">${slotIcon} ${reg.slot}</div>
                 `;
                 
                 aartiData.appendChild(item);
