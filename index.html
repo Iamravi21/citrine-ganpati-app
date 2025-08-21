@@ -1160,12 +1160,17 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                // Ensure date is properly formatted
-                let dateFormatted;
-                try {
-                    dateFormatted = new Date(reg.date + 'T00:00:00').toLocaleDateString();
-                } catch (e) {
-                    dateFormatted = reg.date; // fallback to original if parsing fails
+                // Handle different date formats
+                let dateFormatted = reg.date;
+                if (reg.date && reg.date.includes('-')) {
+                    // Handle YYYY-MM-DD format
+                    const dateParts = reg.date.split('-');
+                    if (dateParts.length === 3) {
+                        const year = dateParts[0];
+                        const month = dateParts[1];
+                        const day = dateParts[2];
+                        dateFormatted = `${month}/${day}/${year}`;
+                    }
                 }
                 
                 item.innerHTML = `
