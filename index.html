@@ -384,9 +384,10 @@
             <div class="live-indicator">🔴 LIVE DATA - Everyone sees same info!</div>
         </div>
         
-        <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap;">
             <button class="tab-btn active" onclick="showTab('contribution')">💰 Contribution</button>
             <button class="tab-btn" onclick="showTab('mahaprasad')">🍽️ Mahaprasad</button>
+            <button class="tab-btn" onclick="showTab('aarti')">🕉️ Aarti Schedule</button>
         </div>
 
         <div id="contribution" class="tab-content active">
@@ -517,6 +518,73 @@
                 </div>
             </div>
         </div>
+        
+        <div id="aarti" class="tab-content">
+            <div class="form-container">
+                <form id="aartiForm">
+                    <div class="form-group">
+                        <label class="form-label">👤 Full Name</label>
+                        <input type="text" class="form-input" id="aartiName" placeholder="Enter your full name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🏠 Flat Number</label>
+                        <select class="form-select" id="aartiFlat" required>
+                            <option value="">Select your flat number</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📅 Select Date</label>
+                        <input type="date" class="form-input" id="aartiDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🕉️ Aarti Slot</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="morning" name="aartiSlot" value="Morning">
+                                <label for="morning">🌅 Morning Aarti</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="evening" name="aartiSlot" value="Evening">
+                                <label for="evening">🌆 Evening Aarti</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="aartiSubmitBtn">
+                        🕉️ Register for Aarti 🕉️
+                    </button>
+                </form>
+
+                <div class="success-message" id="aartiSuccessMessage"></div>
+                <div class="error-message" id="aartiErrorMessage"></div>
+            </div>
+            
+            <div class="contributions-list" id="aartiList">
+                <div class="contributions-title">🕉️ Aarti Schedule</div>
+                <div class="loading" id="aartiLoadingMessage">Loading schedule...</div>
+                <div id="aartiData"></div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAartiSlots">0</div>
+                        <div class="stat-label">Total Registrations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="availableSlots">0</div>
+                        <div class="stat-label">Available Slots</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 15px;">
+                    <button onclick="loadAarti()" style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer;">
+                        🔄 Refresh Schedule
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <div class="blessing">
             🌺 May Lord Ganesha bless our society with prosperity and happiness 🌺
@@ -546,7 +614,18 @@
             childCount: 'entry.394683762'
         };
         
+        // Aarti configuration
+        const AARTI_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScO8JFBKl9lrG6oJkjymEnIMp_aSKkYM24jZ3kXC6ZFn5fzcg/formResponse';
+        const AARTI_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1K0xlxseB5YBB8wNkgy9VUipoVX5i_Hz-uSckFZMVhNg/export?format=csv';
+        const AARTI_FIELD_IDS = {
+            name: 'entry.1197989810',
+            flatNumber: 'entry.943706387',
+            date: 'entry.535661156',
+            slot: 'entry.2078035383'
+        };
+        
         let mahaprasadRegistrations = [];
+        let aartiRegistrations = [];
 
         // Pre-existing contributions
         const existingContributions = [
@@ -583,6 +662,8 @@
             
             if (tabName === 'mahaprasad') {
                 loadMahaprasad();
+            } else if (tabName === 'aarti') {
+                loadAarti();
             }
         }
         
@@ -590,6 +671,7 @@
         function generateFlatNumbers() {
             const flatSelect = document.getElementById('flatNumber');
             const mahaprasadFlatSelect = document.getElementById('mahaprasadFlat');
+            const aartiFlatSelect = document.getElementById('aartiFlat');
             
             const flats = [];
             
@@ -614,7 +696,7 @@
                 }
             }
             
-            // Populate both dropdowns
+            // Populate all dropdowns
             flats.forEach(flatNum => {
                 const option1 = document.createElement('option');
                 option1.value = flatNum;
@@ -625,6 +707,11 @@
                 option2.value = flatNum;
                 option2.textContent = flatNum;
                 mahaprasadFlatSelect.appendChild(option2);
+                
+                const option3 = document.createElement('option');
+                option3.value = flatNum;
+                option3.textContent = flatNum;
+                aartiFlatSelect.appendChild(option3);
             });
         }
 
@@ -771,6 +858,9 @@
             const totalAmount = document.getElementById('totalAmount');
             const totalContributors = document.getElementById('totalContributors');
             const avgContribution = document.getElementById('avgContribution');
+            
+            // Store contributions globally for validation
+            allLiveContributions = contributions;
             
             contributionsData.innerHTML = '';
             let total = 0;
@@ -1006,6 +1096,239 @@
             submitBtn.disabled = false;
             submitBtn.textContent = '🍽️ Register for Mahaprasad 🍽️';
         });
+        
+        // Aarti functions
+        async function loadAarti() {
+            try {
+                document.getElementById('aartiLoadingMessage').style.display = 'block';
+                
+                const cacheBuster = new Date().getTime();
+                const urlWithCacheBuster = `${AARTI_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
+                
+                const response = await fetch(urlWithCacheBuster, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                const csvText = await response.text();
+                
+                const lines = csvText.trim().split('\n');
+                const registrations = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 4 && values[1] && values[1].trim()) {
+                        registrations.push({
+                            name: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            flatNumber: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            date: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
+                            slot: values[4].replace(/"/g, '').replace(/\r/g, '').trim()
+                        });
+                    }
+                }
+                
+                aartiRegistrations = registrations;
+                displayAarti(registrations);
+                document.getElementById('aartiLoadingMessage').style.display = 'none';
+            } catch (error) {
+                console.error('Error loading Aarti schedule:', error);
+                document.getElementById('aartiData').innerHTML = '<p style="text-align: center; color: #8B4513;">Error loading schedule. Please try again.</p>';
+                document.getElementById('aartiLoadingMessage').style.display = 'none';
+            }
+        }
+        
+        function displayAarti(registrations) {
+            const aartiData = document.getElementById('aartiData');
+            const totalAartiSlots = document.getElementById('totalAartiSlots');
+            const availableSlots = document.getElementById('availableSlots');
+            
+            aartiData.innerHTML = '';
+            
+            // Group by date and slot
+            const groupedByDate = {};
+            registrations.forEach(reg => {
+                const dateKey = reg.date;
+                if (!groupedByDate[dateKey]) {
+                    groupedByDate[dateKey] = { Morning: [], Evening: [] };
+                }
+                groupedByDate[dateKey][reg.slot].push(reg);
+            });
+            
+            // Display by date
+            Object.keys(groupedByDate).sort().forEach(date => {
+                const dateSection = document.createElement('div');
+                dateSection.style.marginBottom = '20px';
+                dateSection.innerHTML = `<h3 style="color: #FF6B35; margin-bottom: 10px;">📅 ${new Date(date).toLocaleDateString()}</h3>`;
+                
+                ['Morning', 'Evening'].forEach(slot => {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.style.marginBottom = '10px';
+                    
+                    const registrationsForSlot = groupedByDate[date][slot];
+                    const slotsUsed = registrationsForSlot.length;
+                    const slotsAvailable = 2 - slotsUsed;
+                    
+                    slotDiv.innerHTML = `
+                        <div style="background: rgba(255,107,53,0.1); padding: 10px; border-radius: 8px; border-left: 4px solid #FF6B35;">
+                            <strong>${slot === 'Morning' ? '🌅' : '🌆'} ${slot} Aarti (${slotsUsed}/2 slots filled)</strong>
+                            ${registrationsForSlot.map(reg => `
+                                <div style="margin-top: 5px; padding: 5px; background: rgba(255,255,255,0.7); border-radius: 5px;">
+                                    ${reg.name} - ${reg.flatNumber}
+                                </div>
+                            `).join('')}
+                            ${slotsAvailable > 0 ? `<div style="margin-top: 5px; color: #4CAF50; font-weight: bold;">✓ ${slotsAvailable} slot(s) available</div>` : '<div style="margin-top: 5px; color: #f44336; font-weight: bold;">❌ Fully booked</div>'}
+                        </div>
+                    `;
+                    
+                    dateSection.appendChild(slotDiv);
+                });
+                
+                aartiData.appendChild(dateSection);
+            });
+            
+            if (Object.keys(groupedByDate).length === 0) {
+                aartiData.innerHTML = '<p style="text-align: center; color: #8B4513;">No Aarti registrations yet. Be the first to register!</p>';
+            }
+            
+            totalAartiSlots.textContent = registrations.length;
+            // Calculate total available slots (assuming 30 days, 2 slots per day, 2 registrations per slot)
+            const totalPossibleSlots = 30 * 2 * 2; // 30 days * 2 slots * 2 registrations each
+            availableSlots.textContent = totalPossibleSlots - registrations.length;
+        }
+        
+        async function submitAartiToGoogleForms(formData) {
+            const params = new URLSearchParams();
+            params.append(AARTI_FIELD_IDS.name, formData.name);
+            params.append(AARTI_FIELD_IDS.flatNumber, formData.flatNumber);
+            params.append(AARTI_FIELD_IDS.date, formData.date);
+            params.append(AARTI_FIELD_IDS.slot, formData.slot);
+            
+            try {
+                await fetch(AARTI_FORM_URL, {
+                    method: 'POST',
+                    body: params,
+                    mode: 'no-cors'
+                });
+                return true;
+            } catch (error) {
+                console.error('Error submitting Aarti registration:', error);
+                return false;
+            }
+        }
+        
+        function showAartiMessage(message, isError = false) {
+            const successMsg = document.getElementById('aartiSuccessMessage');
+            const errorMsg = document.getElementById('aartiErrorMessage');
+            
+            if (isError) {
+                errorMsg.textContent = message;
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            } else {
+                successMsg.textContent = message;
+                successMsg.style.display = 'block';
+                errorMsg.style.display = 'none';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Aarti form handler
+        document.getElementById('aartiForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('aartiSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            try {
+                const name = document.getElementById('aartiName').value;
+                const flatNumber = document.getElementById('aartiFlat').value;
+                const date = document.getElementById('aartiDate').value;
+                const slot = document.querySelector('input[name="aartiSlot"]:checked')?.value;
+                
+                if (!slot) {
+                    showAartiMessage('Please select an Aarti slot (Morning or Evening).', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
+                    return;
+                }
+                
+                // Check for duplicate flat on same date
+                const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber && r.date === date);
+                if (duplicateFlat) {
+                    showAartiMessage('This flat has already registered for Aarti on this date!', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
+                    return;
+                }
+                
+                // Check slot availability (max 2 per slot per date)
+                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && r.slot === slot);
+                if (sameSlotSameDate.length >= 2) {
+                    showAartiMessage(`${slot} Aarti slot is fully booked for ${new Date(date).toLocaleDateString()}. Please choose a different date or slot.`, true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
+                    return;
+                }
+                
+                const formData = {
+                    name: name,
+                    flatNumber: flatNumber,
+                    date: date,
+                    slot: slot
+                };
+                
+                const success = await submitAartiToGoogleForms(formData);
+                
+                if (success) {
+                    showAartiMessage('🎉 Registration successful! You are registered for Aarti. 🕉️');
+                    
+                    // Add to local array for immediate validation
+                    aartiRegistrations.push(formData);
+                    
+                    // Reset form
+                    this.reset();
+                    document.querySelectorAll('input[name="aartiSlot"]').forEach(radio => {
+                        radio.checked = false;
+                    });
+                    document.querySelectorAll('.radio-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                    
+                    // Reload data
+                    setTimeout(() => {
+                        loadAarti();
+                    }, 1000);
+                } else {
+                    showAartiMessage('❌ Error submitting registration. Please try again.', true);
+                }
+                
+            } catch (error) {
+                showAartiMessage('❌ Error submitting registration. Please try again.', true);
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
+        });
+        
+        // Handle Aarti slot selection
+        document.querySelectorAll('input[name="aartiSlot"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.radio-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                this.closest('.radio-option').classList.add('selected');
+            });
+        });
+
+        // Global variable to store all contributions for validation
+        let allLiveContributions = [];
 
         // Handle form submission
         document.getElementById('contributionForm').addEventListener('submit', async function(e) {
@@ -1019,19 +1342,18 @@
                 const name = document.getElementById('userName').value;
                 const flatNumber = document.getElementById('flatNumber').value;
                 const residentType = document.querySelector('input[name="residentType"]:checked').value;
-                const amount = document.getElementById('contributionAmount').value || '0';
+                const amount = document.getElementById('contributionAmount').value;
                 
-                // Check minimum amount
-                if (amount && parseInt(amount) < 1100) {
+                // Check minimum amount - must be at least 1100
+                if (!amount || parseInt(amount) < 1100) {
                     showMessage('❌ Minimum contribution amount is ₹1100. Please enter a valid amount.', true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🙏 Submit Contribution 🙏';
                     return;
                 }
                 
-                // Check for duplicate flat number
-                const allContributions = [...existingContributions];
-                const isDuplicate = allContributions.some(contrib => contrib.flatNumber === flatNumber);
+                // Check for duplicate flat number in live data
+                const isDuplicate = allLiveContributions.some(contrib => contrib.flatNumber === flatNumber);
                 
                 if (isDuplicate) {
                     showMessage('❌ This flat number has already made a contribution. Duplicate entries are not allowed.', true);
@@ -1092,16 +1414,40 @@
             submitBtn.textContent = '🙏 Submit Contribution 🙏';
         });
 
+        // Submit Shivaji Buchade entry to Google Sheets
+        async function submitShivajiBuchadeEntry() {
+            const shivajiData = {
+                name: 'Shivaji Buchade',
+                flatNumber: 'Special',
+                residentType: 'Contributor',
+                amount: '10000'
+            };
+            
+            try {
+                await submitToGoogleForms(shivajiData);
+                console.log('Shivaji Buchade entry submitted to Google Sheets');
+            } catch (error) {
+                console.log('Shivaji Buchade entry already exists or error occurred');
+            }
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             generateFlatNumbers();
             loadContributions();
             loadMahaprasad();
+            loadAarti();
             
-            // Auto-refresh both contributions and mahaprasad every 15 seconds
+            // Submit Shivaji Buchade entry on first load
+            setTimeout(() => {
+                submitShivajiBuchadeEntry();
+            }, 2000);
+            
+            // Auto-refresh all data every 15 seconds
             setInterval(() => {
                 loadContributions();
                 loadMahaprasad();
+                loadAarti();
             }, 15000);
         });
     </script>
