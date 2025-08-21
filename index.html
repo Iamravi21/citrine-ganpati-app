@@ -1210,18 +1210,30 @@
         }
         
         async function submitAartiToGoogleForms(formData) {
+            // Format date as MM/DD/YYYY for Google Forms
+            const dateObj = new Date(formData.date);
+            const formattedDate = `${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getDate().toString().padStart(2, '0')}/${dateObj.getFullYear()}`;
+            
             const params = new URLSearchParams();
             params.append(AARTI_FIELD_IDS.name, formData.name);
             params.append(AARTI_FIELD_IDS.flatNumber, formData.flatNumber);
-            params.append(AARTI_FIELD_IDS.date, formData.date);
+            params.append(AARTI_FIELD_IDS.date, formattedDate);
             params.append(AARTI_FIELD_IDS.slot, formData.slot);
             
+            console.log('Submitting Aarti data:', {
+                name: formData.name,
+                flatNumber: formData.flatNumber,
+                date: formattedDate,
+                slot: formData.slot
+            });
+            
             try {
-                await fetch(AARTI_FORM_URL, {
+                const response = await fetch(AARTI_FORM_URL, {
                     method: 'POST',
                     body: params,
                     mode: 'no-cors'
                 });
+                console.log('Aarti submission response:', response);
                 return true;
             } catch (error) {
                 console.error('Error submitting Aarti registration:', error);
@@ -1295,6 +1307,9 @@
                     date: date,
                     slot: slot  // Use exact value from radio button
                 };
+                
+                console.log('Form data before submission:', formData);
+                console.log('Field IDs:', AARTI_FIELD_IDS);
                 
                 const success = await submitAartiToGoogleForms(formData);
                 
