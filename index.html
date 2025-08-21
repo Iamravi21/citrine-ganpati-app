@@ -1160,7 +1160,13 @@
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
-                const dateFormatted = new Date(reg.date).toLocaleDateString();
+                // Ensure date is properly formatted
+                let dateFormatted;
+                try {
+                    dateFormatted = new Date(reg.date + 'T00:00:00').toLocaleDateString();
+                } catch (e) {
+                    dateFormatted = reg.date; // fallback to original if parsing fails
+                }
                 
                 item.innerHTML = `
                     <div>
@@ -1247,10 +1253,10 @@
                     return;
                 }
                 
-                // Check for duplicate flat on same date (any slot)
-                const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber && r.date === date);
+                // Check for duplicate flat (only 1 entry per flat total)
+                const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
                 if (duplicateFlat) {
-                    showAartiMessage('This flat has already registered for Aarti on this date! Only one slot per flat per day is allowed.', true);
+                    showAartiMessage('This flat has already registered for Aarti! Only one registration per flat is allowed.', true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
