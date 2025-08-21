@@ -419,8 +419,8 @@
                 </div>
 
                 <div class="form-group contribution-group" id="contributionGroup">
-                    <label class="form-label">💰 Contribution Amount (₹)</label>
-                    <input type="number" class="form-input" id="contributionAmount" placeholder="Enter contribution amount" min="1">
+                    <label class="form-label">💰 Contribution Amount (₹) - Minimum ₹1100</label>
+                    <input type="number" class="form-input" id="contributionAmount" placeholder="Enter contribution amount (Min: ₹1100)" min="1100">
                 </div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">
@@ -569,7 +569,8 @@
             { name: "Mukesh Rathore", flatNumber: "A203", residentType: "Owner", amount: "1101" },
             { name: "Debasish Dey", flatNumber: "A806", residentType: "Owner", amount: "1100" },
             { name: "Yogesh Mahajan", flatNumber: "A406", residentType: "Owner", amount: "1101" },
-            { name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" }
+            { name: "Manohar Jha", flatNumber: "A305", residentType: "Tenant", amount: "1500" },
+            { name: "Shivaji Buchade", flatNumber: "Special", residentType: "Contributor", amount: "10000" }
         ];
 
         // Tab switching function
@@ -1019,6 +1020,25 @@
                 const flatNumber = document.getElementById('flatNumber').value;
                 const residentType = document.querySelector('input[name="residentType"]:checked').value;
                 const amount = document.getElementById('contributionAmount').value || '0';
+                
+                // Check minimum amount
+                if (amount && parseInt(amount) < 1100) {
+                    showMessage('❌ Minimum contribution amount is ₹1100. Please enter a valid amount.', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🙏 Submit Contribution 🙏';
+                    return;
+                }
+                
+                // Check for duplicate flat number
+                const allContributions = [...existingContributions];
+                const isDuplicate = allContributions.some(contrib => contrib.flatNumber === flatNumber);
+                
+                if (isDuplicate) {
+                    showMessage('❌ This flat number has already made a contribution. Duplicate entries are not allowed.', true);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🙏 Submit Contribution 🙏';
+                    return;
+                }
                 
                 const formData = {
                     name: name,
