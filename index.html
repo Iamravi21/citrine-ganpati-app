@@ -575,10 +575,6 @@
                         <div class="stat-value" id="totalAartiSlots">0</div>
                         <div class="stat-label">Total Registrations</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="availableSlots">0</div>
-                        <div class="stat-label">Available Slots</div>
-                    </div>
                 </div>
                 
                 <div style="text-align: center; margin-top: 15px;">
@@ -1151,62 +1147,37 @@
         function displayAarti(registrations) {
             const aartiData = document.getElementById('aartiData');
             const totalAartiSlots = document.getElementById('totalAartiSlots');
-            const availableSlots = document.getElementById('availableSlots');
             
             aartiData.innerHTML = '';
             
-            // Group by date and slot
-            const groupedByDate = {};
-            registrations.forEach(reg => {
-                const dateKey = reg.date;
-                if (!groupedByDate[dateKey]) {
-                    groupedByDate[dateKey] = { 'Morning Aarti': [], 'Evening Aarti': [] };
-                }
-                if (groupedByDate[dateKey][reg.slot]) {
-                    groupedByDate[dateKey][reg.slot].push(reg);
-                }
-            });
-            
-            // Display by date
-            Object.keys(groupedByDate).sort().forEach(date => {
-                const dateSection = document.createElement('div');
-                dateSection.style.marginBottom = '20px';
-                dateSection.innerHTML = `<h3 style="color: #FF6B35; margin-bottom: 10px;">📅 ${new Date(date).toLocaleDateString()}</h3>`;
-                
-                ['Morning Aarti', 'Evening Aarti'].forEach(slot => {
-                    const slotDiv = document.createElement('div');
-                    slotDiv.style.marginBottom = '10px';
-                    
-                    const registrationsForSlot = groupedByDate[date][slot] || [];
-                    const slotsUsed = registrationsForSlot.length;
-                    const slotsAvailable = 2 - slotsUsed;
-                    
-                    slotDiv.innerHTML = `
-                        <div style="background: rgba(255,107,53,0.1); padding: 10px; border-radius: 8px; border-left: 4px solid #FF6B35;">
-                            <strong>${slot === 'Morning Aarti' ? '🌅' : '🌆'} ${slot} (${slotsUsed}/2 slots filled)</strong>
-                            ${registrationsForSlot.map(reg => `
-                                <div style="margin-top: 5px; padding: 5px; background: rgba(255,255,255,0.7); border-radius: 5px;">
-                                    ${reg.name} - ${reg.flatNumber}
-                                </div>
-                            `).join('')}
-                            ${slotsAvailable > 0 ? `<div style="margin-top: 5px; color: #4CAF50; font-weight: bold;">✓ ${slotsAvailable} slot(s) available</div>` : '<div style="margin-top: 5px; color: #f44336; font-weight: bold;">❌ Fully booked</div>'}
-                        </div>
-                    `;
-                    
-                    dateSection.appendChild(slotDiv);
-                });
-                
-                aartiData.appendChild(dateSection);
-            });
-            
-            if (Object.keys(groupedByDate).length === 0) {
+            if (registrations.length === 0) {
                 aartiData.innerHTML = '<p style="text-align: center; color: #8B4513;">No Aarti registrations yet. Be the first to register!</p>';
+                totalAartiSlots.textContent = 0;
+                return;
             }
             
+            // Sort by date
+            registrations.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            registrations.forEach(reg => {
+                const item = document.createElement('div');
+                item.className = 'contribution-item';
+                
+                const dateFormatted = new Date(reg.date).toLocaleDateString();
+                const slotIcon = reg.slot === 'Morning Aarti' ? '🌅' : '🌆';
+                
+                item.innerHTML = `
+                    <div>
+                        <strong>${reg.name}</strong><br>
+                        <small>${reg.flatNumber} - 📅 ${dateFormatted}</small>
+                    </div>
+                    <div style="font-weight: bold; color: #FF6B35;">${slotIcon} ${reg.slot}</div>
+                `;
+                
+                aartiData.appendChild(item);
+            });
+            
             totalAartiSlots.textContent = registrations.length;
-            // Calculate total available slots (assuming 30 days, 2 slots per day, 2 registrations per slot)
-            const totalPossibleSlots = 30 * 2 * 2; // 30 days * 2 slots * 2 registrations each
-            availableSlots.textContent = totalPossibleSlots - registrations.length;
         }
         
         async function submitAartiToGoogleForms(formData) {
