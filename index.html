@@ -1308,11 +1308,16 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
-                // Use only live Google Sheets data
-                console.log('Live aartiRegistrations from Google Sheets:', aartiRegistrations);
+                // Force fresh data load and use it directly
+                console.log('Current aartiRegistrations before fresh load:', aartiRegistrations);
+                console.log('Fresh data returned from loadAarti:', freshData);
+                
+                // Use the fresh data directly
+                const allRegistrations = freshData || [];
+                console.log('Using fresh registrations for validation:', allRegistrations);
                 
                 // Check for duplicate flat (only 1 entry per flat total)
-                const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
+                const duplicateFlat = allRegistrations.find(r => r.flatNumber === flatNumber);
                 console.log('Duplicate flat check result:', duplicateFlat);
                 
                 if (duplicateFlat) {
@@ -1324,7 +1329,7 @@
                 }
                 
                 // Check slot availability (max 2 per slot per date)
-                const sameSlotSameDate = aartiRegistrations.filter(r => {
+                const sameSlotSameDate = allRegistrations.filter(r => {
                     const dateMatch = r.date === date;
                     const slotMatch = r.slot === slot;
                     console.log(`Comparing entry: ${r.name} ${r.flatNumber} - Date: ${r.date}===${date}? ${dateMatch}, Slot: ${r.slot}===${slot}? ${slotMatch}`);
