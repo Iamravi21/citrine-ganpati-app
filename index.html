@@ -625,6 +625,9 @@
         
         let mahaprasadRegistrations = [];
         let aartiRegistrations = [];
+        
+        // Simple counter for slot validation
+        let slotCounts = {}; // Format: "2025-08-30-Morning Aarti": 2
 
         // Pre-existing contributions
         const existingContributions = [
@@ -1308,40 +1311,15 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
-                // Force fresh data load and use it directly
-                console.log('Current aartiRegistrations before fresh load:', aartiRegistrations);
-                console.log('Fresh data returned from loadAarti:', freshData);
+                // Simple slot validation using counter
+                const slotKey = `${date}-${slot}`;
+                const currentCount = slotCounts[slotKey] || 0;
                 
-                // Use the fresh data directly
-                const allRegistrations = freshData || [];
-                console.log('Using fresh registrations for validation:', allRegistrations);
+                console.log('Slot validation:', { slotKey, currentCount, limit: 2 });
                 
-                // Check for duplicate flat (only 1 entry per flat total)
-                const duplicateFlat = allRegistrations.find(r => r.flatNumber === flatNumber);
-                console.log('Duplicate flat check result:', duplicateFlat);
-                
-                if (duplicateFlat) {
-                    console.log('BLOCKED: Duplicate flat found');
-                    showAartiMessage('This flat has already registered for Aarti! Only one registration per flat is allowed.', true);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
-                    return;
-                }
-                
-                // Check slot availability (max 2 per slot per date)
-                const sameSlotSameDate = allRegistrations.filter(r => {
-                    const dateMatch = r.date === date;
-                    const slotMatch = r.slot === slot;
-                    console.log(`Comparing entry: ${r.name} ${r.flatNumber} - Date: ${r.date}===${date}? ${dateMatch}, Slot: ${r.slot}===${slot}? ${slotMatch}`);
-                    return dateMatch && slotMatch;
-                });
-                
-                console.log('Same slot/date registrations found:', sameSlotSameDate);
-                console.log('Count:', sameSlotSameDate.length);
-                
-                if (sameSlotSameDate.length >= 2) {
+                if (currentCount >= 2) {
                     console.log('BLOCKED: Slot is full');
-                    showAartiMessage(`${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Only 2 registrations allowed per slot per date.`, true);
+                    showAartiMessage(`🚫 Sorry! ${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Only 2 families can register per slot per date. Please choose a different date or slot. 🙏`, true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
@@ -1366,6 +1344,11 @@
                 const success = await submitAartiToGoogleForms(formData);
                 
                 if (success) {
+                    // Increment slot counter
+                    const slotKey = `${date}-${slot}`;
+                    slotCounts[slotKey] = (slotCounts[slotKey] || 0) + 1;
+                    console.log('Updated slot counts:', slotCounts);
+                    
                     showAartiMessage('🎉 Registration successful! Your details will appear below shortly. 🕉️');
                     
                     // Reset form
