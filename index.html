@@ -1311,11 +1311,20 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
-                // Simple slot validation using counter
+                // Count existing registrations from Google Sheets + our counter
                 const slotKey = `${date}-${slot}`;
-                const currentCount = slotCounts[slotKey] || 0;
+                const existingCount = (freshData || []).filter(r => r.date === date && r.slot === slot).length;
+                const counterCount = slotCounts[slotKey] || 0;
+                const currentCount = existingCount + counterCount;
                 
-                console.log('Slot validation:', { slotKey, currentCount, limit: 2 });
+                console.log('Slot count breakdown:', { 
+                    slotKey, 
+                    existingFromSheets: existingCount, 
+                    newFromCounter: counterCount, 
+                    total: currentCount 
+                });
+                
+
                 
                 if (currentCount >= 2) {
                     console.log('BLOCKED: Slot is full');
