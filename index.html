@@ -1305,6 +1305,16 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
+                // TEMPORARY: Add test data if array is empty to test validation
+                if (aartiRegistrations.length === 0) {
+                    console.log('No data found, adding test data for validation');
+                    aartiRegistrations = [
+                        { name: 'Test User 1', flatNumber: 'B201', date: '2025-08-30', slot: 'Morning Aarti' },
+                        { name: 'Test User 2', flatNumber: 'B202', date: '2025-08-30', slot: 'Morning Aarti' }
+                    ];
+                    console.log('Test data added:', aartiRegistrations);
+                }
+                
                 // Check for duplicate flat (only 1 entry per flat total)
                 const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
                 console.log('Duplicate flat check result:', duplicateFlat);
