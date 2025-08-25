@@ -1111,6 +1111,8 @@
                 const cacheBuster = new Date().getTime();
                 const urlWithCacheBuster = `${AARTI_SHEET_CSV_URL}&cachebuster=${cacheBuster}`;
                 
+                console.log('Loading Aarti data from:', urlWithCacheBuster);
+                
                 const response = await fetch(urlWithCacheBuster, {
                     cache: 'no-cache',
                     headers: {
@@ -1119,28 +1121,39 @@
                 });
                 const csvText = await response.text();
                 
+                console.log('CSV response received, length:', csvText.length);
+                console.log('First 200 chars:', csvText.substring(0, 200));
+                
                 const lines = csvText.trim().split('\n');
                 const registrations = [];
+                
+                console.log('Processing', lines.length, 'lines');
                 
                 for (let i = 1; i < lines.length; i++) {
                     const values = lines[i].split(',');
                     if (values.length >= 4 && values[1] && values[1].trim()) {
-                        registrations.push({
+                        const registration = {
                             name: values[1].replace(/"/g, '').replace(/\r/g, '').trim(),
                             flatNumber: values[2].replace(/"/g, '').replace(/\r/g, '').trim(),
                             date: values[3].replace(/"/g, '').replace(/\r/g, '').trim(),
                             slot: values[4].replace(/"/g, '').replace(/\r/g, '').trim()
-                        });
+                        };
+                        registrations.push(registration);
+                        console.log('Added registration:', registration);
                     }
                 }
                 
+                console.log('Total registrations loaded:', registrations.length);
                 aartiRegistrations = registrations;
                 displayAarti(registrations);
                 document.getElementById('aartiLoadingMessage').style.display = 'none';
+                
+                return registrations; // Return the data for validation
             } catch (error) {
                 console.error('Error loading Aarti schedule:', error);
                 document.getElementById('aartiData').innerHTML = '<p style="text-align: center; color: #8B4513;">Error loading schedule. Please try again.</p>';
                 document.getElementById('aartiLoadingMessage').style.display = 'none';
+                return []; // Return empty array on error
             }
         }
         
@@ -1284,12 +1297,20 @@
                 submitBtn.textContent = 'Checking availability...';
                 await loadAarti();
                 
-                // Check for duplicate flat (only 1 entry per flat total)
-                console.log('Checking duplicate flat for:', flatNumber);
-                console.log('All registrations:', aartiRegistrations.map(r => ({ flat: r.flatNumber, date: r.date, slot: r.slot })));
+                // Wait a moment for data to be processed
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
+                console.log('=== VALIDATION START ===')
+                console.log('Input data:', { name, flatNumber, date, slot });
+                console.log('Current aartiRegistrations array:', aartiRegistrations);
+                console.log('Array length:', aartiRegistrations.length);
+                
+                // Check for duplicate flat (only 1 entry per flat total)
                 const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
+                console.log('Duplicate flat check result:', duplicateFlat);
+                
                 if (duplicateFlat) {
+                    console.log('BLOCKED: Duplicate flat found');
                     showAartiMessage('This flat has already registered for Aarti! Only one registration per flat is allowed.', true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
@@ -1297,23 +1318,26 @@
                 }
                 
                 // Check slot availability (max 2 per slot per date)
-                console.log('Checking slot availability for:', { date, slot });
-                console.log('Current aartiRegistrations:', aartiRegistrations);
-                
                 const sameSlotSameDate = aartiRegistrations.filter(r => {
-                    console.log('Comparing:', { rDate: r.date, rSlot: r.slot, inputDate: date, inputSlot: slot });
-                    return r.date === date && r.slot === slot;
+                    const dateMatch = r.date === date;
+                    const slotMatch = r.slot === slot;
+                    console.log(`Comparing entry: ${r.name} ${r.flatNumber} - Date: ${r.date}===${date}? ${dateMatch}, Slot: ${r.slot}===${slot}? ${slotMatch}`);
+                    return dateMatch && slotMatch;
                 });
                 
-                console.log('Found same slot/date registrations:', sameSlotSameDate);
+                console.log('Same slot/date registrations found:', sameSlotSameDate);
                 console.log('Count:', sameSlotSameDate.length);
                 
                 if (sameSlotSameDate.length >= 2) {
+                    console.log('BLOCKED: Slot is full');
                     showAartiMessage(`${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Only 2 registrations allowed per slot per date.`, true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
                 }
+                
+                console.log('VALIDATION PASSED - Proceeding with submission');
+                console.log('=== VALIDATION END ===')
                 
                 // All validations passed, now submit
                 submitBtn.textContent = 'Submitting...';
