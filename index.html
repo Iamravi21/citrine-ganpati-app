@@ -1230,6 +1230,7 @@
                     mode: 'no-cors'
                 });
                 console.log('Aarti submission response:', response);
+                // For no-cors mode, we can't check response status, so assume success
                 return true;
             } catch (error) {
                 console.error('Error submitting Aarti registration:', error);
@@ -1264,10 +1265,7 @@
             
             const submitBtn = document.getElementById('aartiSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
-            
-            // Ensure we have the latest data before validation
-            await loadAarti();
+            submitBtn.textContent = 'Loading data...';
             
             try {
                 const name = document.getElementById('aartiName').value;
@@ -1281,6 +1279,10 @@
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
                 }
+                
+                // Ensure we have the latest data before validation
+                submitBtn.textContent = 'Checking availability...';
+                await loadAarti();
                 
                 // Check for duplicate flat (only 1 entry per flat total)
                 console.log('Checking duplicate flat for:', flatNumber);
@@ -1312,6 +1314,9 @@
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
                 }
+                
+                // All validations passed, now submit
+                submitBtn.textContent = 'Submitting...';
                 
                 const formData = {
                     name: name,
