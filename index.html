@@ -1156,7 +1156,14 @@
                 return;
             }
             
-            registrations.forEach(reg => {
+            // Sort registrations by date in ascending order
+            const sortedRegistrations = registrations.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateA - dateB;
+            });
+            
+            sortedRegistrations.forEach(reg => {
                 const item = document.createElement('div');
                 item.className = 'contribution-item';
                 
