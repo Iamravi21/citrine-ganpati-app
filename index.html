@@ -1266,6 +1266,9 @@
             submitBtn.disabled = true;
             submitBtn.textContent = 'Submitting...';
             
+            // Ensure we have the latest data before validation
+            await loadAarti();
+            
             try {
                 const name = document.getElementById('aartiName').value;
                 const flatNumber = document.getElementById('aartiFlat').value;
@@ -1280,6 +1283,9 @@
                 }
                 
                 // Check for duplicate flat (only 1 entry per flat total)
+                console.log('Checking duplicate flat for:', flatNumber);
+                console.log('All registrations:', aartiRegistrations.map(r => ({ flat: r.flatNumber, date: r.date, slot: r.slot })));
+                
                 const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
                 if (duplicateFlat) {
                     showAartiMessage('This flat has already registered for Aarti! Only one registration per flat is allowed.', true);
@@ -1289,9 +1295,19 @@
                 }
                 
                 // Check slot availability (max 2 per slot per date)
-                const sameSlotSameDate = aartiRegistrations.filter(r => r.date === date && r.slot === slot);
+                console.log('Checking slot availability for:', { date, slot });
+                console.log('Current aartiRegistrations:', aartiRegistrations);
+                
+                const sameSlotSameDate = aartiRegistrations.filter(r => {
+                    console.log('Comparing:', { rDate: r.date, rSlot: r.slot, inputDate: date, inputSlot: slot });
+                    return r.date === date && r.slot === slot;
+                });
+                
+                console.log('Found same slot/date registrations:', sameSlotSameDate);
+                console.log('Count:', sameSlotSameDate.length);
+                
                 if (sameSlotSameDate.length >= 2) {
-                    showAartiMessage(`${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Please choose a different date or slot.`, true);
+                    showAartiMessage(`${slot} slot is fully booked for ${new Date(date).toLocaleDateString()}. Only 2 registrations allowed per slot per date.`, true);
                     submitBtn.disabled = false;
                     submitBtn.textContent = '🕉️ Register for Aarti 🕉️';
                     return;
