@@ -281,6 +281,10 @@
                     <input type="number" class="form-input" id="expensePrice" placeholder="Enter price" min="1" required>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Paid By</label>
+                    <input type="text" class="form-input" id="expensePaidBy" placeholder="Enter who paid for this" required>
+                </div>
+                <div class="form-group">
                     <label class="form-label">Bill (Optional)</label>
                     <input type="file" class="form-input" id="expenseBill" accept="image/*,.pdf">
                 </div>
@@ -351,7 +355,8 @@
         const EXPENSE_FIELD_IDS = {
             date: 'entry.1105929670',
             item: 'entry.1943750769',
-            price: 'entry.1962827851'
+            price: 'entry.1962827851',
+            paidBy: 'entry.123456789'
         };
 
         // Initialize with existing data
@@ -795,6 +800,7 @@
             params.append(EXPENSE_FIELD_IDS.date, expenseData.date);
             params.append(EXPENSE_FIELD_IDS.item, expenseData.item);
             params.append(EXPENSE_FIELD_IDS.price, expenseData.price);
+            params.append(EXPENSE_FIELD_IDS.paidBy, expenseData.paidBy);
             
             try {
                 await fetch(EXPENSE_FORM_URL, {
@@ -808,6 +814,11 @@
                 return false;
             }
         }
+        
+        function updatePaidBack(index, value) {
+            expenses[index].paidBack = value;
+            saveData();
+        }
 
         // Expense form handler
         document.getElementById('expenseForm').addEventListener('submit', async function(e) {
@@ -816,16 +827,19 @@
             const date = document.getElementById('expenseDate').value;
             const item = document.getElementById('expenseItem').value;
             const price = document.getElementById('expensePrice').value;
+            const paidBy = document.getElementById('expensePaidBy').value;
             const billFile = document.getElementById('expenseBill').files[0];
             
             // Try to submit to Google Forms first
-            const success = await submitExpenseToGoogleForms({ date, item, price });
+            const success = await submitExpenseToGoogleForms({ date, item, price, paidBy });
             
             const expense = {
                 id: nextExpenseId++,
                 date: date,
                 item: item,
                 price: parseInt(price),
+                paidBy: paidBy,
+                paidBack: 'no',
                 billName: billFile ? billFile.name : null,
                 billData: null,
                 isLive: success
@@ -876,9 +890,13 @@
                 <div class="contribution-row">
                     <div class="contribution-info">
                         <strong>${e.item}</strong> - ${new Date(e.date).toLocaleDateString()}<br>
-                        <small>₹${e.price.toLocaleString()} ${e.billName ? '| 📄 Bill attached' : ''}</small>
+                        <small>₹${e.price.toLocaleString()} | Paid by: ${e.paidBy || 'N/A'} ${e.billName ? '| 📄 Bill attached' : ''}</small>
                     </div>
                     <div class="contribution-actions">
+                        <select onchange="updatePaidBack(${index}, this.value)" style="margin-right: 10px; padding: 5px;">
+                            <option value="no" ${e.paidBack === 'yes' ? '' : 'selected'}>Not Paid Back</option>
+                            <option value="yes" ${e.paidBack === 'yes' ? 'selected' : ''}>Paid Back</option>
+                        </select>
                         ${e.billData ? `<button class="btn btn-primary" onclick="viewBill(${e.id})">View Bill</button>` : ''}
                         <button class="btn btn-danger" onclick="deleteExpense(${index})">Delete</button>
                     </div>
