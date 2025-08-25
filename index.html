@@ -1295,7 +1295,10 @@
                 
                 // Ensure we have the latest data before validation
                 submitBtn.textContent = 'Checking availability...';
-                await loadAarti();
+                const freshData = await loadAarti();
+                
+                // Use the fresh data directly for validation
+                aartiRegistrations = freshData || [];
                 
                 // Wait a moment for data to be processed
                 await new Promise(resolve => setTimeout(resolve, 500));
@@ -1305,9 +1308,8 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
-                // Use real data from Google Sheets
-                console.log('Using real data from Google Sheets');
-                console.log('Real aartiRegistrations:', aartiRegistrations);
+                // Use only live Google Sheets data
+                console.log('Live aartiRegistrations from Google Sheets:', aartiRegistrations);
                 
                 // Check for duplicate flat (only 1 entry per flat total)
                 const duplicateFlat = aartiRegistrations.find(r => r.flatNumber === flatNumber);
@@ -1370,7 +1372,11 @@
                         option.classList.remove('selected');
                     });
                     
-                    // Reload data multiple times to get live data from Google Sheets
+                    // Reload data immediately and multiple times to get live data from Google Sheets
+                    setTimeout(() => {
+                        loadAarti();
+                    }, 1000);
+                    
                     setTimeout(() => {
                         loadAarti();
                     }, 3000);
@@ -1378,10 +1384,6 @@
                     setTimeout(() => {
                         loadAarti();
                     }, 8000);
-                    
-                    setTimeout(() => {
-                        loadAarti();
-                    }, 15000);
                 } else {
                     showAartiMessage('❌ Error submitting registration. Please try again.', true);
                 }
