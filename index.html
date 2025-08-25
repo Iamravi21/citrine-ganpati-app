@@ -1311,18 +1311,16 @@
                 console.log('Current aartiRegistrations array:', aartiRegistrations);
                 console.log('Array length:', aartiRegistrations.length);
                 
-                // Count existing registrations from Google Sheets + our counter
+                // Count from actual loaded data + counter
                 const slotKey = `${date}-${slot}`;
-                const existingCount = (freshData || []).filter(r => r.date === date && r.slot === slot).length;
+                const existingCount = aartiRegistrations.filter(r => {
+                    console.log(`Checking: ${r.date}===${date}? ${r.date === date}, ${r.slot}===${slot}? ${r.slot === slot}`);
+                    return r.date === date && r.slot === slot;
+                }).length;
                 const counterCount = slotCounts[slotKey] || 0;
                 const currentCount = existingCount + counterCount;
                 
-                console.log('Slot count breakdown:', { 
-                    slotKey, 
-                    existingFromSheets: existingCount, 
-                    newFromCounter: counterCount, 
-                    total: currentCount 
-                });
+                console.log('Slot validation:', { slotKey, existingCount, counterCount, currentCount, limit: 2 });
                 
 
                 
