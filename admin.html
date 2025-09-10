@@ -341,6 +341,9 @@
         let expenses = [];
         let nextExpenseId = 1;
         
+        // Clear all existing expense data
+        localStorage.removeItem('ganpatiExpenses');
+        
         // Google Sheets configuration for contributions
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/14l5QnKmBW3G4np1aSmW78iLPPr5yqY_UzQQa6SEb_6M/export?format=csv';
         
